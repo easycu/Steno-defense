@@ -193,8 +193,8 @@ input[type=text].url{width:100%;box-sizing:border-box;background:#1c1823;color:v
   </div>
 
   <div id="bar">
-    <input id="typing" autocomplete="off" spellcheck="false" placeholder="여기에 입력 — 띄어쓰기·부호 무시, 글자만 맞으면 공격">
-    <span id="hint"><span class="k">Esc</span>일시정지</span>
+    <input id="typing" autocomplete="off" spellcheck="false" placeholder="여기에 입력 — 글자만 맞으면 공격 · 틀리면 Enter로 지우기">
+    <span id="hint"><span class="k">Enter</span>지우기 <span class="k">Esc</span>일시정지</span>
   </div>
   <div id="cmds"><span><b>상점</b> 강화</span><span><b>보스</b> 도전</span><span><b>이전</b>·<b>다음</b> 스테이지 이동</span><span><b>자동</b> 자동 도전</span><span><b>업적</b>·<b>환생</b>·<b>소리</b></span><span id="autoState"></span></div>
 </div>
@@ -763,7 +763,8 @@ function setSubmitMode(on) {
   submitWithEnter = !!on;
   try { localStorage.setItem('stenoDefense.enter', on ? '1' : '0'); } catch (e) {}
   document.getElementById('btnMode').textContent = '입력 방식: ' + (submitWithEnter ? 'Enter로 제출' : '맞는 순간 바로');
-  typing.placeholder = submitWithEnter ? '여기에 입력 후 Enter — 띄어쓰기·부호 무시' : '여기에 입력 — 띄어쓰기·부호 무시, 글자만 맞으면 공격';
+  document.getElementById('hint').innerHTML = `<span class="k">Enter</span>${submitWithEnter ? '제출' : '지우기'} <span class="k">Esc</span>일시정지`;
+  typing.placeholder = submitWithEnter ? '여기에 입력 후 Enter — 틀리면 지워져요' : '여기에 입력 — 글자만 맞으면 공격 · 틀리면 Enter로 지우기';
 }
 function bindTyping(el) {
   el.addEventListener('compositionstart', () => composing = true);
@@ -848,7 +849,12 @@ function submitTyped() {
   if (!raw) return;
   if (tryHit(candidates(raw))) return;
   if (!S.typoFlag) { S.typoFlag = true; S.st.typos++; breakCombo(); }
-  setBad(true);
+  wipeTyped();
+}
+/* 틀렸을 때 Enter: 친 글자를 한 번에 지우고 바로 다시 치게 (백스페이스 대신) */
+function wipeTyped() {
+  if (S.mode !== 'play' || !typing.value) return;
+  clearInput(typing.value);   // 입력기가 늦게 넣는 마지막 글자도 함께 정리
 }
 function setBad(b) { typing.classList.toggle('bad', b); }
 function clearInput(typedText) {
@@ -1606,7 +1612,10 @@ updateAutoUI();
 
 document.addEventListener('keydown', e => {
   if (S.mode === 'play' && e.key === 'Escape') { e.preventDefault(); setMode('pause'); return; }
-  if (S.mode === 'play' && e.key === 'Enter' && submitWithEnter) { e.preventDefault(); setTimeout(submitTyped, 0); return; }
+  const isEnter = e.key === 'Enter' || e.code === 'Enter' || e.code === 'NumpadEnter';
+  if (S.mode === 'play' && isEnter && submitWithEnter) { e.preventDefault(); setTimeout(submitTyped, 0); return; }
+  // 바로 공격 방식: 맞으면 이미 공격됐으므로, Enter를 누를 때 남은 글자는 지움
+  if (S.mode === 'play' && isEnter) { e.preventDefault(); setTimeout(wipeTyped, 0); return; }
   if (S.mode === 'pause' && e.key === 'Escape') { e.preventDefault(); setMode('play'); return; }
   if (S.mode === 'title' && e.key === 'Enter' && document.activeElement?.tagName !== 'BUTTON') { e.preventDefault(); startGame(); return; }
   if (S.mode === 'ach' && (e.key === 'Enter' || e.key === 'Escape')) { e.preventDefault(); setMode(S.achFrom || 'title'); return; }
