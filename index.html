@@ -16,7 +16,7 @@
   --dim:#a99fb4;        /* 보조 글자 */
   --torch:#f2b544;      /* 강조(횃불) */
   --ember:#e0613a;      /* 경고 */
-  --frost:#7cc6e8;      /* 보호막·시간정지 */
+  --frost:#7cc6e8;      /* 시간 효과 */
   --ok:#8fd16a;
   --f-display:"Do Hyeon","Noto Sans KR",system-ui,sans-serif;
   --f-body:"Noto Sans KR",system-ui,sans-serif;
@@ -24,52 +24,54 @@
 }
 [hidden]{display:none!important}
 html,body{height:100%}
-body{background:var(--night);color:var(--parch);font-family:var(--f-body);overflow:hidden;
+body{background:var(--night);color:var(--parch);font-family:var(--f-body);overflow:hidden;margin:0;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));box-sizing:border-box}
-#app{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding-block:10px;box-sizing:border-box}
-#stage{position:relative;width:100%;max-width:calc((100vh - 110px) * 16 / 9);aspect-ratio:16/9;max-height:calc(100% - 80px)}
+#app{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding-block:10px;box-sizing:border-box}
+#stage{position:relative;width:100%;max-width:calc((100vh - 130px) * 16 / 9);aspect-ratio:16/9;max-height:calc(100% - 100px)}
 #cv{width:100%;height:100%;display:block;border-radius:6px;background:#000}
-#bar{width:100%;max-width:calc((100vh - 110px) * 16 / 9);display:flex;gap:10px;align-items:center}
+#bar{width:100%;max-width:calc((100vh - 130px) * 16 / 9);display:flex;gap:10px;align-items:center}
 #typing{flex:1;min-width:0;font:700 26px/1.2 var(--f-body);padding:12px 16px;border-radius:6px;border:2px solid var(--stone-2);
   background:var(--stone);color:var(--parch);outline:none}
 #typing:focus{border-color:var(--torch)}
 #typing.bad{border-color:var(--ember)}
 #hint{font-size:13px;color:var(--dim);white-space:nowrap}
+#cmds{width:100%;max-width:calc((100vh - 130px) * 16 / 9);font-size:13px;color:var(--dim);display:flex;gap:14px;flex-wrap:wrap}
+#cmds b{color:var(--torch);font-weight:700}
 .ov{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(14,11,19,.78);border-radius:6px;padding:16px;box-sizing:border-box}
-.panel{background:var(--stone);border:2px solid var(--stone-2);border-radius:10px;padding:22px 26px;max-width:760px;width:100%;max-height:100%;overflow:auto;box-sizing:border-box}
+.panel{background:var(--stone);border:2px solid var(--stone-2);border-radius:10px;padding:22px 26px;max-width:780px;width:100%;max-height:100%;overflow:auto;box-sizing:border-box}
 h1,h2{font-family:var(--f-display);font-weight:400;margin:0;text-wrap:balance;letter-spacing:.02em}
 h1{font-size:54px;color:var(--torch);line-height:1}
 h2{font-size:34px;color:var(--torch)}
-.sub{color:var(--dim);margin:6px 0 18px}
-.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
-.st{font:400 22px var(--f-display);padding:10px 4px 8px;border-radius:6px;border:2px solid var(--stone-2);background:#221e29;color:var(--parch);cursor:pointer;text-align:center}
-.st small{display:block;font:500 11px var(--f-body);color:var(--dim);margin-top:2px;font-variant-numeric:tabular-nums}
-.st:hover:not(:disabled),.st:focus-visible{border-color:var(--torch)}
-.st:disabled{opacity:.35;cursor:default}
+.sub{color:var(--dim);margin:6px 0 16px;line-height:1.55}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:16px}
 .btn{font:700 15px var(--f-body);padding:10px 16px;border-radius:6px;border:2px solid var(--stone-2);background:#221e29;color:var(--parch);cursor:pointer}
 .btn:hover,.btn:focus-visible{border-color:var(--torch)}
 .btn.main{background:var(--torch);color:#2a1c05;border-color:var(--torch)}
 .btn.main .k{color:#2a1c05;border-color:#2a1c05}
+.btn.warn{border-color:var(--ember);color:var(--ember)}
 .k{display:inline-block;font:700 12px var(--f-body);padding:1px 6px;border:1px solid var(--dim);border-radius:4px;color:var(--dim);margin-right:4px}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:4px 0 6px}
 .stat{background:#221e29;border-radius:8px;padding:10px 12px}
-.stat b{display:block;font:400 30px var(--f-display);color:var(--parch);font-variant-numeric:tabular-nums}
+.stat b{display:block;font:400 28px var(--f-display);color:var(--parch);font-variant-numeric:tabular-nums}
 .stat span{font-size:12px;color:var(--dim);letter-spacing:.04em}
+.help{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:14px;margin-top:14px;line-height:1.5}
+.help b{color:var(--torch);font-family:var(--f-display);font-weight:400;font-size:18px}
+.help span{color:var(--dim)}
 .shop{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
 .card{background:#221e29;border:2px solid var(--stone-2);border-radius:8px;padding:12px;cursor:pointer;display:flex;flex-direction:column;gap:6px;text-align:left;color:var(--parch);font:inherit}
 .card:hover:not(:disabled),.card:focus-visible{border-color:var(--torch)}
-.card:disabled{opacity:.4;cursor:default}
+.card:disabled{opacity:.45;cursor:default}
 .card .nm{font:400 22px var(--f-display);color:var(--torch)}
-.card .ds{font-size:13px;color:var(--dim);line-height:1.45;flex:1}
-.card .pr{font-weight:900;font-variant-numeric:tabular-nums}
-.card .lv{font-size:12px;color:var(--frost)}
+.card .lv{font-size:12px;color:var(--dim)}
+.card .val{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums}
+.card .val i{font-style:normal;color:var(--ok)}
+.card .pr{font-weight:900;font-variant-numeric:tabular-nums;margin-top:auto}
 .owned{font-size:13px;color:var(--dim);margin-top:12px;line-height:1.7}
 textarea{width:100%;box-sizing:border-box;min-height:180px;background:#1c1823;color:var(--parch);border:2px solid var(--stone-2);border-radius:6px;padding:10px;font:500 14px/1.6 var(--f-body)}
 input[type=text].url{width:100%;box-sizing:border-box;background:#1c1823;color:var(--parch);border:2px solid var(--stone-2);border-radius:6px;padding:8px 10px;font:500 13px var(--f-body)}
 .msg{font-size:13px;color:var(--ok);min-height:1.4em;margin-top:8px}
-.src{font-size:12px;color:var(--dim);margin-top:12px}
-@media (max-width:700px){.grid{grid-template-columns:repeat(4,1fr)}.shop,.stats{grid-template-columns:1fr 1fr}h1{font-size:40px}}
+.src{font-size:12px;color:var(--dim)}
+@media (max-width:700px){.shop,.stats{grid-template-columns:1fr 1fr}h1{font-size:40px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
@@ -77,48 +79,48 @@ input[type=text].url{width:100%;box-sizing:border-box;background:#1c1823;color:v
   <div id="stage">
     <canvas id="cv" width="1280" height="720"></canvas>
 
-    <!-- 타이틀 / 스테이지 선택 -->
+    <!-- 타이틀 -->
     <div class="ov" id="ovTitle">
       <div class="panel">
         <h1>속기 디펜스</h1>
-        <p class="sub">머리 위 글자를 치면 몬스터가 쓰러집니다. 띄어쓰기와 문장부호는 채점하지 않습니다.</p>
-        <div class="grid" id="stageGrid"></div>
+        <p class="sub">머리 위 글자를 치면 친 글자 수만큼 공격합니다. 띄어쓰기와 문장부호는 채점하지 않아요. 웨이브 3개를 깨면 보스에 도전할 수 있고, 보스가 성벽에 닿기 전에 쓰러뜨리면 다음 스테이지로 올라갑니다.</p>
+        <div class="stats" id="titleStats"></div>
+        <div class="help">
+          <b>상점</b><span>일시정지하고 공격력·치명타·성벽을 강화</span>
+          <b>보스</b><span>보스에 도전 (웨이브 3개를 깬 뒤)</span>
+          <b>이전 · 다음</b><span>스테이지 이동 (다음은 최고 기록까지)</span>
+          <b>자동</b><span>자동 보스 도전 켜기·끄기</span>
+          <b>얼음 · 늪 · 바람 · 집중 · 필살</b><span>보스 보상으로 얻는 소모품 사용</span>
+        </div>
         <div class="row">
+          <button class="btn main" id="btnStart"><span class="k">Enter</span><span id="startLabel">시작</span></button>
           <button class="btn" id="btnManage">문장 관리</button>
           <button class="btn" id="btnMode">입력 방식: 맞는 순간 바로</button>
-          <span class="src" id="srcLabel"></span>
+          <button class="btn warn" id="btnWipe">진행 초기화</button>
         </div>
+        <p class="src" id="srcLabel" style="margin-top:12px"></p>
       </div>
     </div>
 
     <!-- 상점 -->
     <div class="ov" id="ovShop" hidden>
       <div class="panel">
-        <h2 id="shopTitle">상점</h2>
+        <h2>상점</h2>
         <p class="sub" id="shopSub"></p>
         <div class="shop" id="shopCards"></div>
         <div class="row">
-          <button class="btn" id="btnReroll"></button>
-          <button class="btn main" id="btnNext"><span class="k">Enter</span>다음 웨이브</button>
+          <button class="btn main" id="btnShopClose"><span class="k">Enter</span>전투로 돌아가기</button>
+          <button class="btn" id="btnAuto"></button>
         </div>
         <div class="owned" id="ownedList"></div>
       </div>
     </div>
 
-    <!-- 스테이지 결과 / 게임오버 -->
-    <div class="ov" id="ovResult" hidden>
-      <div class="panel">
-        <h2 id="resTitle"></h2>
-        <p class="sub" id="resSub"></p>
-        <div class="stats" id="resStats"></div>
-        <div class="row" id="resBtns"></div>
-      </div>
-    </div>
-
     <!-- 일시정지 -->
     <div class="ov" id="ovPause" hidden>
-      <div class="panel" style="max-width:420px;text-align:center">
+      <div class="panel" style="max-width:440px;text-align:center">
         <h2>일시정지</h2>
+        <p class="sub">진행 상황은 자동으로 저장됩니다.</p>
         <div class="row" style="justify-content:center">
           <button class="btn main" id="btnResume"><span class="k">Esc</span>계속하기</button>
           <button class="btn" id="btnQuit">타이틀로</button>
@@ -156,36 +158,57 @@ input[type=text].url{width:100%;box-sizing:border-box;background:#1c1823;color:v
     <input id="typing" autocomplete="off" spellcheck="false" placeholder="여기에 입력 — 띄어쓰기·부호 무시, 글자만 맞으면 공격">
     <span id="hint"><span class="k">Esc</span>일시정지</span>
   </div>
+  <div id="cmds"><span><b>상점</b> 강화</span><span><b>보스</b> 도전</span><span><b>이전</b>·<b>다음</b> 스테이지 이동</span><span><b>자동</b> 자동 도전</span><span id="autoState"></span></div>
 </div>
 
 <script>
 /* =====================================================================
-   속기 디펜스 — 설정값 (여기 숫자만 바꾸면 난이도가 바뀝니다)
+   속기 디펜스 (방치형) — 설정값. 숫자만 바꾸면 난이도가 바뀝니다.
+   s = 스테이지 번호
    ===================================================================== */
 const CONFIG = {
-  stages: 20,               // 전체 스테이지 수
-  wavesPerStage: 5,         // 스테이지당 웨이브 수 (마지막 웨이브에 보스)
-  wallHP: 3000,             // 성벽 체력
-  monstersBase: 8,          // 1스테이지 웨이브당 몬스터 수
-  monstersPerStage: 0.9,    // 스테이지마다 늘어나는 몬스터 수
-  eliteBase: 0.10,          // 정예 출현 확률 (1스테이지)
-  elitePerStage: 0.015,     // 스테이지마다 늘어나는 정예 확률
-  eliteMax: 0.40,           // 정예 확률 상한
-  bossCount: s => s <= 10 ? 1 : 2,   // 스테이지별 보스 수 (1~10: 1마리, 11~20: 2마리)
-  bossSentences: 2,         // 보스 한 마리를 잡는 데 쳐야 할 문장 수
-  bossGap: 4,               // 보스끼리 등장 간격(초)
-  spawnGapBase: 2.0,        // 몬스터 등장 간격(초)
-  spawnGapPerStage: 0.04,   // 스테이지마다 줄어드는 간격
-  spawnGapMin: 1.1,         // 등장 간격 하한
-  walkTime: { normal: 11, elite: 14, boss: 20 },  // 화면 끝→성벽까지 걸리는 시간(초)
-  dps: { normal: 15, elite: 35, boss: 90 },       // 성벽에 붙어서 주는 초당 피해
-  gold: { normal: 3, elite: 8, boss: 33 },        // 처치 골드
-  shopSlots: 4,             // 상점에 뜨는 소모품 수 (매번 무작위)
-  itemMax: 3,               // 소모품 종류별 최대 보유 개수
-  autoHeal: 0.33,           // 성벽이 이 비율 아래로 떨어지면 '체력' 자동 사용
-  rerollBase: 10, rerollStep: 5,   // 새로고침 비용
+  waves: 3,                 // 보스 도전 전에 깨야 하는 웨이브 수
+  perWave: 4,               // 웨이브당 몬스터 수
+  spawnGap: 1.2,            // 웨이브 안에서 몬스터 등장 간격(초)
+  waveGap: 1.0,             // 웨이브 사이 쉬는 시간(초)
+  walkTime: { normal: 12, elite: 15 },   // 화면 끝 → 성벽까지 걸리는 시간(초)
+  bossTime: 30,             // 보스 제한시간 = 보스가 성벽까지 걸어오는 시간(초)
+
+  hp0: 30, hpG: 1.20,       // 일반 몬스터 체력 = 30 × 1.2^(s-1)
+  eliteHP: 3,               // 정예 = 일반의 3배
+  bossMult: [4, 6, 8, 10, 14],   // 보스 체력 배수 (스테이지 끝자리에 따라 순환)
+  eliteBase: 0.10, elitePerStage: 0.005, eliteMax: 0.35,   // 정예 출현 확률
+
+  gold0: 3,                 // 일반 처치 골드 = 3 × 1.2^(s-1)
+  eliteGold: 3,             // 정예 = 일반의 3배
+  bossGold: 3,              // 보스 = 일반 골드 × 3 × 보스 배수
+
+  monAtk0: 25, monAtkG: 1.08,   // 성벽에 붙은 몬스터의 초당 공격력 = 25 × 1.08^(s-1)
+  eliteAtk: 2.5,                // 정예 = 2.5배
+
+  // 강화: 값(단계) / 비용(단계) — 단계는 0부터
+  upgrades: {
+    atk:  { name: '공격력',     val: L => 10 * Math.pow(1.08, L),            cost: L => 50 * Math.pow(1.12, L) },
+    crit: { name: '치명타 확률', val: L => Math.min(0.50, 0.05 + 0.01 * L), cost: L => 400 * Math.pow(1.20, L), max: 45 },
+    cdmg: { name: '치명타 피해', val: L => 1.5 + 0.10 * L,                   cost: L => 300 * Math.pow(1.16, L) },
+    wall: { name: '성벽',       val: L => 1000 * Math.pow(1.10, L),          cost: L => 150 * Math.pow(1.14, L) },
+  },
+
+  itemDrop: 0.5,            // 보스 처치 시 소모품을 얻을 확률
+  itemMax: 3,               // 종류별 최대 보유 개수
+  autoRetryWaves: 3,        // 자동 도전: 보스 실패 후 웨이브 몇 개를 더 깨고 재도전할지
+  collapseDown: 2,          // 성벽이 연속 몇 번 무너지면 한 스테이지 내려갈지
   cpmWindow: 20,            // 실시간 분당 타수 계산 구간(초)
 };
+
+const ITEMS = {
+  얼음: '4초 동안 모든 몬스터가 멈춥니다. 보스도 멈춰서 제한시간이 늘어나요.',
+  늪:   '8초 동안 모든 몬스터의 속도가 절반이 됩니다.',
+  바람: '모든 몬스터를 뒤로 밀어냅니다. 성벽에 붙은 몬스터도 떨어져요.',
+  집중: '10초 동안 공격력이 2배가 됩니다.',
+  필살: '다음 3번의 공격이 반드시 치명타로 들어갑니다.',
+};
+const COMMANDS = ['상점', '보스', '이전', '다음', '자동'];
 
 /* 스테이지 테마: 4스테이지마다 바뀌고, 같은 테마 안에서는 점점 어두워짐 */
 const THEMES = [
@@ -195,17 +218,6 @@ const THEMES = [
   { name: '화산', a: [84, 46, 38], b: [94, 54, 44], speck: [200, 70, 30] },
   { name: '어둠', a: [44, 38, 66], b: [52, 45, 76], speck: [110, 80, 170] },
 ];
-
-/* 소모품 — 입력창에 이름을 치면 발동 (몬스터 글자와 겹치면 몬스터가 우선) */
-const ITEMS = {
-  체력: { price: 40, desc: '성벽 체력을 25% 회복합니다. 성벽이 33% 아래로 떨어지면 자동으로 쓰입니다.' },
-  얼음: { price: 35, desc: '4초 동안 모든 몬스터가 멈춥니다.' },
-  번개: { price: 40, desc: '성벽에 가장 가까운 일반 몬스터 3마리를 처치합니다.' },
-  방패: { price: 35, desc: '피해 400을 막는 보호막을 칩니다. 웨이브가 끝나면 사라집니다.' },
-  늪:   { price: 35, desc: '8초 동안 모든 몬스터의 속도가 절반이 됩니다.' },
-  바람: { price: 30, desc: '모든 몬스터를 뒤로 밀어냅니다. 성벽에 붙은 몬스터도 떨어집니다.' },
-  폭탄: { price: 45, desc: '성벽에 가장 가까운 정예 몬스터 1마리를 처치합니다.' },
-};
 
 /* 기본 문장 (저장소 파일을 못 읽을 때 사용) */
 const BUILTIN = [
@@ -218,7 +230,6 @@ const BUILTIN = [
   "물가 상승과 식재료 단가 인상이 주된 원인으로 분석됩니다.",
   "정부는 관계 부처와 협의하여 종합 대책을 마련하기로 했습니다.",
   "앞으로도 현장의 목소리에 귀를 기울이겠습니다.",
-  "감사합니다.",
   "그렇다면 구체적인 시행 시기는 언제쯤으로 보고 계십니까?",
   "말씀하신 취지는 충분히 이해하지만 현실적인 어려움이 있습니다.",
   "교육 현장의 업무 부담을 줄이기 위한 방안이 필요합니다.",
@@ -228,25 +239,28 @@ const BUILTIN = [
   "담당 공무원이 직접 현장을 방문하여 상황을 확인했습니다.",
   "속기는 말하는 속도를 따라가는 기술입니다.",
   "꾸준히 연습하면 누구나 실력을 키울 수 있습니다.",
-  "네, 알겠습니다!",
 ];
 
 /* =====================================================================
    저장 (이 브라우저에만 저장됨)
    ===================================================================== */
-const SAVE_KEY = 'stenoDefense.v1';
-let save = { unlocked: 1, best: {}, custom: null, url: '' };
+const SAVE_KEY = 'stenoDefense.v1';          // 문장 설정
+let save = { custom: null, url: '' };
 try { Object.assign(save, JSON.parse(localStorage.getItem(SAVE_KEY) || '{}')); } catch (e) {}
 function persist() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch (e) {} }
 
+const PROG_KEY = 'stenoIdle.v1';             // 진행 상황
+const PROG0 = () => ({ stage: 1, best: 1, gold: 0, up: { atk: 0, crit: 0, cdmg: 0, wall: 0 }, inv: {}, auto: true, totalChars: 0, totalTime: 0 });
+let prog = PROG0();
+try { const p = JSON.parse(localStorage.getItem(PROG_KEY) || 'null'); if (p) { prog = Object.assign(PROG0(), p); prog.up = Object.assign(PROG0().up, p.up); } } catch (e) {}
+function saveProg() { try { localStorage.setItem(PROG_KEY, JSON.stringify(prog)); } catch (e) {} }
+
 /* =====================================================================
-   문장 데이터 → 출제 단위 만들기
+   문장 데이터 → 출제 단위
    ===================================================================== */
 let SENTENCES = [], SOURCE = '';
 const PUNCT_KEEP = /[^\p{L}\p{N}\s.,?!]/gu;   // . , ? ! 외 문장부호 제거
 function cleanSentence(s) { return String(s).normalize('NFC').replace(PUNCT_KEEP, '').replace(/\s+/g, ' ').trim(); }
-function coreLen(w) { return w.replace(/[.,?!]/g, '').length; }
-function norm(s) { return String(s).normalize('NFC').replace(/\s+/g, ' ').trim(); }
 /* 채점용: 띄어쓰기·문장부호를 모두 빼고 글자만 비교 (속기 시험 채점 방식) */
 function key(s) { return String(s).normalize('NFC').replace(/[^\p{L}\p{N}]/gu, ''); }
 
@@ -255,20 +269,29 @@ function buildPool(list) {
   SENTENCES = list.map(cleanSentence).filter(s => s.length > 0);
   POOL.sentences = SENTENCES.map(s => s.split(' '));
   POOL.normal = [];
-  for (const ws of POOL.sentences) for (const w of ws) if (coreLen(w) >= 2) POOL.normal.push(w);
+  for (const ws of POOL.sentences) for (const w of ws) if (key(w).length >= 2) POOL.normal.push(w);
   if (!POOL.normal.length) POOL.normal = ['속기', '연습'];
 }
-function rnd(a) { return a[Math.floor(Math.random() * a.length)]; }
+function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
 function makeText(type) {
-  if (type === 'normal') return rnd(POOL.normal);
-  const ws = rnd(POOL.sentences);
-  if (type === 'elite') {
-    if (ws.length < 3) return ws.join(' ');               // 짧은 문장은 통째로 (쉬운 정예)
-    const k = Math.min(ws.length, Math.random() < 0.5 ? 3 : 4);
-    const st = Math.floor(Math.random() * (ws.length - k + 1));
-    return ws.slice(st, st + k).join(' ');
-  }
-  return ws.join(' ');
+  if (type === 'normal') return pick(POOL.normal);
+  const ws = pick(POOL.sentences);
+  if (ws.length < 3) return ws.join(' ');               // 짧은 문장은 통째로 (쉬운 정예)
+  const k = Math.min(ws.length, Math.random() < 0.5 ? 3 : 4);
+  const st = Math.floor(Math.random() * (ws.length - k + 1));
+  return ws.slice(st, st + k).join(' ');
+}
+/* 보스 문구: 한 문장을 앞에서부터 3~4어절씩 이어서 (받아쓰기처럼) */
+function bossFeed() {
+  const q = [];
+  return () => {
+    if (!q.length) {
+      const ws = pick(POOL.sentences); let i = 0;
+      while (i < ws.length) { const k = Math.random() < 0.5 ? 3 : 4; q.push(ws.slice(i, i + k).join(' ')); i += k; }
+      if (q.length > 1 && key(q[q.length - 1]).length < 3) { const t = q.pop(); q[q.length - 1] += ' ' + t; }
+    }
+    return q.shift();
+  };
 }
 
 async function loadSentences() {
@@ -287,11 +310,27 @@ async function loadSentences() {
 }
 
 /* =====================================================================
-   캔버스·전장 기하
+   수치 계산
+   ===================================================================== */
+function fmt(n) {             // 큰 수를 만·억·조·경으로
+  n = Math.floor(n);
+  if (n < 10000) return n.toLocaleString();
+  const U = [['경', 1e16], ['조', 1e12], ['억', 1e8], ['만', 1e4]];
+  for (const [u, v] of U) if (n >= v) { const x = n / v; return (x >= 1000 ? Math.floor(x).toLocaleString() : x >= 100 ? x.toFixed(0) : x >= 10 ? x.toFixed(1) : x.toFixed(2)) + u; }
+}
+const upVal = k => CONFIG.upgrades[k].val(prog.up[k]);
+const upCost = k => CONFIG.upgrades[k].cost(prog.up[k]);
+const hpOf = (type, s) => CONFIG.hp0 * Math.pow(CONFIG.hpG, s - 1) * (type === 'elite' ? CONFIG.eliteHP : type === 'boss' ? CONFIG.bossMult[(s - 1) % 5] : 1);
+const goldOf = (type, s) => CONFIG.gold0 * Math.pow(CONFIG.hpG, s - 1) * (type === 'elite' ? CONFIG.eliteGold : type === 'boss' ? CONFIG.bossGold * CONFIG.bossMult[(s - 1) % 5] : 1);
+const monAtk = (type, s) => CONFIG.monAtk0 * Math.pow(CONFIG.monAtkG, s - 1) * (type === 'elite' ? CONFIG.eliteAtk : 1);
+const wallMax = () => upVal('wall');
+
+/* =====================================================================
+   캔버스·전장
    ===================================================================== */
 const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 const W = 1280, H = 720;
-const WALL_X = 210;                 // 성벽 앞면 x
+const WALL_X = 210;
 const SPAWN_X = W + 60;
 const LANES = [215, 300, 385, 470, 555, 640];
 const R = { normal: 22, elite: 30, boss: 50 };
@@ -299,101 +338,92 @@ const typing = document.getElementById('typing');
 
 /* 그림 파일 (assets 폴더). 파일이 없으면 도형으로 대신 그림 */
 const IMG = {};
-for (const n of ['normal', 'elite', 'boss', 'archer']) {
-  const im = new Image(); im.onload = () => IMG[n] = im; im.src = `assets/${n}.png`;
-}
-const SPRITE = { normal: 3.2, elite: 3.2, boss: 3.2 };   // 몸 크기 대비 그림 크기 배율
+for (const n of ['normal', 'elite', 'boss', 'archer']) { const im = new Image(); im.onload = () => IMG[n] = im; im.src = `assets/${n}.png`; }
+const SPRITE = 3.2;
 const ARCHERS = [[92, 205], [66, 305], [100, 405]];
 
 /* =====================================================================
-   게임 상태
+   게임 상태 (저장하지 않는 전투 중 상태)
    ===================================================================== */
 const S = {
-  mode: 'title',         // title | play | shop | result | pause | manage
-  stage: 1, wave: 1,
-  hp: CONFIG.wallHP, shield: 0, lastHit: -99,
-  gold: 0, inv: {},
-  monsters: [], queue: [], waveT: 0, t: 0,
-  fx: [], floaters: [],
-  freezeUntil: -1, slowUntil: -1,
-  combo: 0, typoFlag: false,
-  st: null,   // 스테이지 통계
-  rerollCost: CONFIG.rerollBase, offers: [],
-  banner: null,
+  mode: 'title',          // title | play | shop | pause | manage
+  t: 0,
+  waveNo: 0,              // 이번 스테이지에서 깬 웨이브 수
+  bossReady: false, inBoss: false, bossFailed: false, sinceFail: 0,
+  monsters: [], queue: [], waveT: 0, gap: 0,
+  wall: 0, collapseStreak: 0,
+  freezeUntil: -1, slowUntil: -1, focusUntil: -1, sureCrit: 0,
+  fx: [], floaters: [], banner: null, pendingStage: null,
+  combo: 0, typoFlag: false, st: null,
 };
 function newStats() { return { chars: 0, kills: 0, typos: 0, inputs: 0, time: 0, events: [], peak: 0 }; }
+S.st = newStats();
 
-function stageParams(s) {
-  return {
-    n: CONFIG.monstersBase + Math.floor(CONFIG.monstersPerStage * (s - 1)),
-    pe: Math.min(CONFIG.eliteBase + CONFIG.elitePerStage * (s - 1), CONFIG.eliteMax),
-    nb: CONFIG.bossCount(s),
-    gap: Math.max(CONFIG.spawnGapBase - CONFIG.spawnGapPerStage * (s - 1), CONFIG.spawnGapMin),
-  };
-}
-const SHIELD_MAX = 400;
-
-function startRun(stage) {
-  S.gold = 0; S.inv = {};
-  startStage(stage);
-}
-function startStage(stage) {
-  S.stage = stage; S.wave = 1; S.hp = CONFIG.wallHP;
-  S.shield = 0;
-  S.st = newStats(); S.combo = 0; residue = '';
-  buildGround();
+/* =====================================================================
+   스테이지·웨이브·보스
+   ===================================================================== */
+function enterStage(s, why) {
+  S.pendingStage = null;
+  prog.stage = Math.max(1, s);
+  S.waveNo = 0; S.bossReady = prog.stage < prog.best; S.inBoss = false; S.bossFailed = false; S.sinceFail = 0;
+  S.monsters = []; S.queue = []; S.wall = wallMax();
+  S.freezeUntil = S.slowUntil = S.focusUntil = -1;
+  buildGround(); saveProg();
   startWave();
+  if (why) banner(why);
 }
 function startWave() {
-  const p = stageParams(S.stage);
-  S.monsters = []; S.fx = []; S.floaters = [];
-  S.queue = []; S.waveT = 0;
-  let t = 1.0;
-  for (let i = 0; i < p.n; i++) {
-    S.queue.push({ t, type: Math.random() < p.pe ? 'elite' : 'normal' });
-    t += p.gap * (0.7 + Math.random() * 0.6);
-  }
-  if (S.wave === CONFIG.wavesPerStage) for (let b = 0; b < p.nb; b++) S.queue.push({ t: t + 1.5 + b * CONFIG.bossGap, type: 'boss' });
-  S.freezeUntil = -1; S.slowUntil = -1; S.shield = 0;
-  S.banner = { text: S.wave === CONFIG.wavesPerStage ? `웨이브 ${S.wave} · 보스` : `웨이브 ${S.wave}`, t: 0 };
-  setMode('play');
+  const s = prog.stage;
+  const pe = Math.min(CONFIG.eliteBase + CONFIG.elitePerStage * (s - 1), CONFIG.eliteMax);
+  S.monsters = []; S.queue = []; S.waveT = 0; S.gap = 0; S.inBoss = false;
+  let t = 0.6;
+  for (let i = 0; i < CONFIG.perWave; i++) { S.queue.push({ t, type: Math.random() < pe ? 'elite' : 'normal' }); t += CONFIG.spawnGap * (0.8 + Math.random() * 0.4); }
 }
+function startBoss() {
+  S.monsters = []; S.queue = []; S.inBoss = true; S.waveT = 0; S.gap = 0;
+  const feed = bossFeed();
+  const lane = 2 + Math.floor(Math.random() * 2);
+  const stopX = WALL_X + R.boss * 1.3 + 8;
+  const hp = hpOf('boss', prog.stage);
+  S.monsters.push({
+    type: 'boss', lane, x: SPAWN_X, y: LANES[lane], stopX, speed: (SPAWN_X - stopX) / CONFIG.bossTime,
+    hp, maxHp: hp, text: feed(), feed, attached: false, dead: false, seed: Math.random() * 10, hitFlash: 0,
+  });
+  banner(`보스 등장 · ${CONFIG.bossTime}초 안에 쓰러뜨리세요`, '224,97,58');
+}
+function bossTimeLeft(m) { return Math.max(0, (m.x - m.stopX) / m.speed); }
 
-/* 첫 글자가 겹치지 않는 출제 */
-function usedFirstChars() { const u = new Set(); for (const m of S.monsters) if (!m.dead) u.add(key(m.text)[0]); return u; }
-function pickText(type, extraUsed) {
-  const used = usedFirstChars(); if (extraUsed) used.add(extraUsed);
-  for (let i = 0; i < 40; i++) { const tx = makeText(type); if (!used.has(key(tx)[0])) return tx; }
-  return null;
+/* 첫 글자가 겹치지 않는 출제 (명령어·소모품 이름과도 겹치지 않게) */
+function usedFirstChars(except) {
+  const u = new Set();
+  for (const m of S.monsters) if (!m.dead && m !== except) u.add(key(m.text)[0]);
+  return u;
 }
-function pickLane(type) {
-  let best = null, bestScore = -1e9;
-  const cands = type === 'boss' ? [2, 3] : LANES.map((_, i) => i);
-  for (const i of cands) {
+function pickText(type, except) {
+  const used = usedFirstChars(except);
+  let tx = null;
+  for (let i = 0; i < 40; i++) { tx = makeText(type); if (!used.has(key(tx)[0])) return tx; }
+  return tx;
+}
+function pickLane() {
+  let best = 0, bestScore = -1e9;
+  LANES.forEach((_, i) => {
     let near = 1e9, cnt = 0;
     for (const m of S.monsters) if (!m.dead && m.lane === i) { cnt++; near = Math.min(near, SPAWN_X - m.x); }
     const score = Math.min(near, 600) - cnt * 80 + Math.random() * 40;
     if (score > bestScore) { bestScore = score; best = i; }
-  }
+  });
   return best;
 }
 function spawn(type) {
-  let texts;
-  if (type === 'boss') {
-    const a = pickText('boss'); if (!a) return false;
-    texts = [a];
-    for (let i = 1; i < CONFIG.bossSentences; i++) {
-      let b = null; for (let k = 0; k < 20 && !b; k++) { const c = makeText('boss'); if (c !== texts[i - 1]) b = c; }
-      texts.push(b || a);
-    }
-  } else { const a = pickText(type); if (!a) return false; texts = [a]; }
-  const lane = pickLane(type);
+  const text = pickText(type); if (!text) return false;
+  const lane = pickLane();
   const stopX = WALL_X + R[type] * 1.3 + 6 + Math.random() * 14;
+  const hp = hpOf(type, prog.stage);
   S.monsters.push({
-    type, lane, x: SPAWN_X, y: LANES[lane] + (type === 'boss' ? 0 : (Math.random() * 10 - 5)),
-    speed: (SPAWN_X - stopX) / CONFIG.walkTime[type], stopX,
-    texts, idx: 0, get text() { return this.texts[this.idx]; },
-    attached: false, dead: false, seed: Math.random() * 10, hitFlash: 0, born: S.t,
+    type, lane, x: SPAWN_X, y: LANES[lane] + (Math.random() * 10 - 5),
+    speed: (SPAWN_X - stopX) / CONFIG.walkTime[type], stopX, hp, maxHp: hp, text,
+    attached: false, dead: false, seed: Math.random() * 10, hitFlash: 0,
   });
   return true;
 }
@@ -407,8 +437,7 @@ try { submitWithEnter = localStorage.getItem('stenoDefense.enter') === '1'; } ca
 function setSubmitMode(on) {
   submitWithEnter = !!on;
   try { localStorage.setItem('stenoDefense.enter', on ? '1' : '0'); } catch (e) {}
-  const b = document.getElementById('btnMode');
-  if (b) b.textContent = '입력 방식: ' + (submitWithEnter ? 'Enter로 제출' : '맞는 순간 바로');
+  document.getElementById('btnMode').textContent = '입력 방식: ' + (submitWithEnter ? 'Enter로 제출' : '맞는 순간 바로');
   typing.placeholder = submitWithEnter ? '여기에 입력 후 Enter — 띄어쓰기·부호 무시' : '여기에 입력 — 띄어쓰기·부호 무시, 글자만 맞으면 공격';
 }
 typing.addEventListener('compositionstart', () => composing = true);
@@ -416,10 +445,10 @@ typing.addEventListener('compositionend', () => { composing = false; onType(); }
 typing.addEventListener('input', onType);
 
 function aliveTexts() { return S.monsters.filter(m => !m.dead).map(m => key(m.text)); }
-/* 잔여 글자 처리
-   글자가 맞는 순간 처치하면, 마지막 글자가 아직 한글 조합 중일 때가 많습니다.
-   입력창을 비운 뒤 입력기가 그 글자를 뒤늦게 다시 넣기 때문에,
-   직전에 처치한 글자의 끝부분(residue)이 입력 맨 앞에 붙어 있으면 떼고 판정합니다. */
+function ownedItems() { return Object.keys(ITEMS).filter(n => (prog.inv[n] || 0) > 0); }
+
+/* 잔여 글자 처리: 맞는 순간 처치하면 마지막 글자가 아직 조합 중이라,
+   입력창을 비운 뒤 입력기가 그 글자를 뒤늦게 넣습니다. 맨 앞의 잔여 글자는 떼고 판정합니다. */
 let residue = '';
 function jamoOf(ch) {
   const c = ch.charCodeAt(0) - 0xAC00;
@@ -430,49 +459,50 @@ function jamoOf(ch) {
 }
 function isResidueHead(head) {
   if (!residue) return false;
-  if (residue.endsWith(head)) return true;                       // '다', '니다' 같은 끝 글자
-  if (head.length === 1) {                                          // 마지막 글자의 낱자모나 조합 도중 글자
+  if (residue.endsWith(head)) return true;
+  if (head.length === 1) {
     const last = residue[residue.length - 1];
     if (jamoOf(last).includes(head)) return true;
     const hj = jamoOf(head); if (hj.length && jamoOf(last).join('').startsWith(hj.join(''))) return true;
   }
   return false;
 }
-function candidates(val) {           // 원래 입력 → 잔여 1~2글자를 뗀 입력 순서
+function candidates(val) {
   const out = [val];
   for (let k = 1; k <= 2 && k <= val.length; k++) if (isResidueHead(val.slice(0, k))) out.push(val.slice(k));
   return out;
 }
 function validPrefix(v) {
-  return !v || aliveTexts().some(t => t.startsWith(v)) || Object.keys(ITEMS).some(n => (S.inv[n] || 0) > 0 && n.startsWith(v));
+  return !v || aliveTexts().some(t => t.startsWith(v)) || ownedItems().some(n => n.startsWith(v)) || COMMANDS.some(c => c.startsWith(v));
 }
+/* 몬스터 글자가 언제나 우선. 소모품·명령어는 그 단어로 시작하는 몬스터 글자가 없을 때만 */
 function tryHit(cands) {
   for (const v of cands) {
     if (!v) continue;
     const hit = S.monsters.find(m => !m.dead && key(m.text) === v);
-    if (hit) { typedKill(hit); return true; }
+    if (hit) { typedHit(hit); return true; }
   }
-  for (const v of cands) {             // 소모품: 그 이름으로 시작하는 몬스터 글자가 없을 때만 (몬스터 우선)
-    if (v && ITEMS[v] && (S.inv[v] || 0) > 0 && !aliveTexts().some(t => t.startsWith(v))) { useItem(v, false); clearInput(v); return true; }
+  for (const v of cands) {
+    if (!v || aliveTexts().some(t => t.startsWith(v))) continue;
+    if (ITEMS[v] && (prog.inv[v] || 0) > 0) { useItem(v); clearInput(v); return true; }
+    if (COMMANDS.includes(v)) { clearInput(v); runCommand(v); return true; }
   }
   return false;
 }
-let clearing = false;   // 입력창을 비우는 중에 들어오는 조합 종료 신호는 무시
+let clearing = false;
 function onType() {
   if (S.mode !== 'play' || clearing) return;
   const raw = key(typing.value);
   if (!raw) { setBad(false); return; }
   const cands = candidates(raw);
   if (!submitWithEnter && tryHit(cands)) return;
-  // 잔여 글자만 남아 있으면 조용히 지움
   if (!composing && cands.includes('') && !validPrefix(raw)) { typing.value = ''; setBad(false); return; }
-  // 오타 검사: 조합 중인 마지막 글자는 빼고 확인
   const ok = cands.some(v => validPrefix(composing ? v.slice(0, -1) : v));
   if (!ok && !S.typoFlag) { S.typoFlag = true; S.st.typos++; S.combo = 0; }
   if (ok) S.typoFlag = false;
   setBad(!ok);
 }
-function submitTyped() {             // Enter 제출 방식
+function submitTyped() {
   if (S.mode !== 'play') return;
   const raw = key(typing.value);
   if (!raw) return;
@@ -481,120 +511,175 @@ function submitTyped() {             // Enter 제출 방식
   setBad(true);
 }
 function setBad(b) { typing.classList.toggle('bad', b); }
-function clearInput(killedText) {
-  if (killedText) residue = key(killedText);
+function clearInput(typedText) {
+  if (typedText) residue = key(typedText);
   clearing = true;
-  typing.blur(); typing.value = ''; typing.focus();
+  typing.blur(); typing.value = ''; if (S.mode === 'play') typing.focus();
   clearing = false;
-  const sweep = () => { if (!composing && typing.value && key(typing.value) && candidates(key(typing.value)).includes('') && !validPrefix(key(typing.value))) typing.value = ''; };
+  const sweep = () => { const v = key(typing.value); if (!composing && v && candidates(v).includes('') && !validPrefix(v)) typing.value = ''; };
   setTimeout(sweep, 0); setTimeout(sweep, 80);
   S.typoFlag = false; setBad(false);
 }
-function addChars(text) {
-  const n = key(text).length;
-  S.st.chars += n; S.st.events.push([S.st.time, n]);
-}
-function typedKill(m) {
-  const text = m.text;
-  addChars(text); S.st.inputs++;
-  { const a = ARCHERS.reduce((p, q) => Math.abs(q[1] - m.y) < Math.abs(p[1] - m.y) ? q : p); S.fx.push({ k: 'arrow', x0: a[0] + 28, y0: a[1] - 4, x1: m.x, y1: m.y - R[m.type] * .4, t: 0, d: .18 }); }
-  if (m.type === 'boss' && m.idx < m.texts.length - 1) {
-    m.idx++; m.hitFlash = .3;
-    S.fx.push({ k: 'boom', x: m.x, y: m.y, t: 0, d: .4, r: 60, c: '255,200,80' });
-    clearInput(text); return;
-  }
-  S.combo++;
-  kill(m, true);
+
+/* =====================================================================
+   공격·처치
+   ===================================================================== */
+function addChars(n) { S.st.chars += n; S.st.events.push([S.st.time, n]); prog.totalChars += n; }
+function typedHit(m) {
+  const text = m.text, n = key(text).length;
+  addChars(n); S.st.inputs++; S.combo++;
+  // 데미지 = 공격력 × 친 글자 수 × 치명타
+  let crit = false;
+  if (S.sureCrit > 0) { S.sureCrit--; crit = true; } else crit = Math.random() < upVal('crit');
+  const dmg = upVal('atk') * n * (crit ? upVal('cdmg') : 1) * (S.t < S.focusUntil ? 2 : 1);
+  const a = ARCHERS.reduce((p, q) => Math.abs(q[1] - m.y) < Math.abs(p[1] - m.y) ? q : p);
+  S.fx.push({ k: 'arrow', x0: a[0] + 28, y0: a[1] - 4, x1: m.x, y1: m.y - R[m.type] * .4, t: 0, d: .18 });
+  m.hp -= dmg; m.hitFlash = .15;
+  S.floaters.push({ x: m.x + (Math.random() * 30 - 15), y: m.y - R[m.type] * 2.2, text: (crit ? '치명타 ' : '') + fmt(dmg), t: 0, crit });
+  if (m.hp <= 0) kill(m);
+  else m.text = m.type === 'boss' ? m.feed() : pickText(m.type, m);
   clearInput(text);
 }
-function kill(m, byTyping) {
+function kill(m) {
   if (m.dead) return;
   m.dead = true; S.st.kills++;
-  let g = CONFIG.gold[m.type];
-  S.gold += g;
-  S.floaters.push({ x: m.x, y: m.y - R[m.type] - 10, text: `+${g}G`, t: 0 });
+  const g = goldOf(m.type, prog.stage);
+  prog.gold += g;
+  S.floaters.push({ x: m.x, y: m.y - 10, text: `+${fmt(g)}G`, t: 0, gold: true });
   const col = m.type === 'boss' ? '240,90,70' : m.type === 'elite' ? '170,120,230' : '140,210,110';
   S.fx.push({ k: 'boom', x: m.x, y: m.y, t: 0, d: .45, r: R[m.type] * 2.2, c: col });
+  if (m.type === 'boss') bossWin();
+}
+function bossWin() {
+  const s = prog.stage;
+  let reward = '';
+  if (Math.random() < CONFIG.itemDrop) {
+    const ks = Object.keys(ITEMS).filter(n => (prog.inv[n] || 0) < CONFIG.itemMax);
+    if (ks.length) { const n = pick(ks); prog.inv[n] = (prog.inv[n] || 0) + 1; reward = ` · 보상: ${n} +1`; }
+  }
+  prog.best = Math.max(prog.best, s + 1);
+  S.collapseStreak = 0;
+  S.pendingStage = { at: S.t + 0.9, stage: s + 1, msg: `스테이지 ${s + 1}${reward}` };   // 0.9초 뒤(게임 시간) 다음 스테이지로
+  S.inBoss = false; S.queue = []; S.gap = 99;   // 넘어가기 전까지 웨이브 멈춤
+  banner(`보스 처치!${reward}`);
+}
+function bossFail() {
+  S.monsters = []; S.inBoss = false; S.bossFailed = true; S.sinceFail = 0;
+  banner('보스가 성벽에 닿았습니다 · 웨이브를 돌며 강화하세요', '224,97,58');
+  S.gap = CONFIG.waveGap;
+}
+function collapse() {
+  S.collapseStreak++;
+  S.monsters = []; S.queue = [];
+  if (S.collapseStreak >= CONFIG.collapseDown && prog.stage > 1) {
+    S.collapseStreak = 0;
+    enterStage(prog.stage - 1, `성벽 붕괴 2연속 · 스테이지 ${prog.stage - 1}로 후퇴`);
+    S.waveNo = 0;
+  } else {
+    S.wall = wallMax(); S.gap = CONFIG.waveGap * 2;
+    banner('성벽이 무너졌습니다 · 웨이브를 다시 시작합니다', '224,97,58');
+  }
 }
 
 /* =====================================================================
-   소모품 사용
+   명령어·소모품
    ===================================================================== */
 function onField() { return S.monsters.filter(m => !m.dead && m.x < W + 10); }
-function notice(text, col) { S.floaters.push({ x: W / 2 + WALL_X / 2, y: 120, text, t: 0, big: true, col }); }
-function useItem(n, auto) {
+function notice(text, col) { S.floaters.push({ x: W / 2 + WALL_X / 2, y: 150, text, t: 0, big: true, col }); }
+function banner(text, col) { S.banner = { text, t: 0, col }; }
+function runCommand(c) {
+  if (c === '상점') { openShop(); return; }
+  if (c === '자동') { prog.auto = !prog.auto; saveProg(); updateAutoUI(); notice(`자동 보스 도전 ${prog.auto ? '켬' : '끔'}`); return; }
+  if (c === '보스') {
+    if (S.inBoss) { notice('이미 보스전 중이에요', '169,159,180'); return; }
+    if (!S.bossReady) { notice(`웨이브 ${CONFIG.waves - S.waveNo}개를 더 깨야 도전할 수 있어요`, '169,159,180'); return; }
+    startBoss(); return;
+  }
+  if (c === '이전') {
+    if (prog.stage <= 1) { notice('1스테이지가 처음이에요', '169,159,180'); return; }
+    enterStage(prog.stage - 1, `스테이지 ${prog.stage - 1}`); return;
+  }
+  if (c === '다음') {
+    if (prog.stage >= prog.best) { notice('보스를 잡아야 올라갈 수 있어요', '169,159,180'); return; }
+    enterStage(prog.stage + 1, `스테이지 ${prog.stage + 1}`); return;
+  }
+}
+function useItem(n) {
   const list = onField();
-  let ok = true;
-  if (n === '체력') { if (S.hp >= CONFIG.wallHP) ok = false; else { S.hp = Math.min(CONFIG.wallHP, S.hp + CONFIG.wallHP * .25); S.fx.push({ k: 'heal', t: 0, d: .8 }); } }
-  else if (n === '얼음') { if (!list.length) ok = false; else S.freezeUntil = S.t + 4; }
-  else if (n === '늪') { if (!list.length) ok = false; else S.slowUntil = S.t + 8; }
-  else if (n === '방패') { if (S.shield >= SHIELD_MAX) ok = false; else { S.shield = SHIELD_MAX; S.fx.push({ k: 'ring', t: 0, d: .5 }); } }
-  else if (n === '번개') {
-    const t = list.filter(m => m.type === 'normal').sort((a, b) => a.x - b.x).slice(0, 3);
-    if (!t.length) ok = false;
-    for (const m of t) { S.fx.push({ k: 'bolt', x0: WALL_X, y0: 140, x1: m.x, y1: m.y, t: 0, d: .4 }); kill(m, false); }
-  }
-  else if (n === '폭탄') {
-    const m = list.filter(m => m.type === 'elite').sort((a, b) => a.x - b.x)[0];
-    if (!m) ok = false;
-    else { S.fx.push({ k: 'boom', x: m.x, y: m.y, t: 0, d: .7, r: 150, c: '255,140,50' }); kill(m, false); }
-  }
+  if (!list.length && n !== '집중' && n !== '필살') { notice(`${n}: 지금은 쓸 대상이 없어요`, '169,159,180'); return; }
+  if (n === '얼음') S.freezeUntil = S.t + 4;
+  else if (n === '늪') S.slowUntil = S.t + 8;
+  else if (n === '집중') S.focusUntil = S.t + 10;
+  else if (n === '필살') S.sureCrit = 3;
   else if (n === '바람') {
-    if (!list.length) ok = false;
-    else { for (const m of S.monsters) { m.x = Math.min(m.x + 220, W + 40); m.attached = false; } S.fx.push({ k: 'wind', t: 0, d: .6 }); }
+    for (const m of S.monsters) { const back = m.type === 'boss' ? 7 : 4; m.x = Math.min(m.x + m.speed * back, SPAWN_X); m.attached = false; }
+    S.fx.push({ k: 'wind', t: 0, d: .6 });
   }
-  if (!ok) { notice(`${n}: 지금은 쓸 대상이 없어요`, '169,159,180'); return false; }
-  S.inv[n]--;
-  notice(auto ? `${n} 자동 사용!` : `${n}!`);
-  return true;
+  prog.inv[n]--; saveProg();
+  notice(`${n}!`);
 }
 
 /* =====================================================================
    업데이트
    ===================================================================== */
 function update(dt) {
-  S.t += dt; S.waveT += dt;
-  if (S.monsters.some(m => !m.dead && m.x < W)) S.st.time += dt;   // 몬스터가 보일 때만 타수 시간으로 셈
-  if (S.banner) { S.banner.t += dt; if (S.banner.t > 1.8) S.banner = null; }
+  S.t += dt;
+  if (S.pendingStage && S.t >= S.pendingStage.at) { const p = S.pendingStage; S.pendingStage = null; enterStage(p.stage, p.msg); }
+  if (S.monsters.some(m => !m.dead && m.x < W)) { S.st.time += dt; prog.totalTime += dt; }
+  if (S.banner) { S.banner.t += dt; if (S.banner.t > 2.2) S.banner = null; }
 
-  // 등장
-  while (S.queue.length && S.queue[0].t <= S.waveT) {
-    if (spawn(S.queue[0].type)) S.queue.shift();
-    else { S.queue[0].t += 0.3; break; }
+  // 웨이브 사이 쉬는 시간
+  if (S.gap > 0) {
+    S.gap -= dt;
+    if (S.gap <= 0) {
+      if (prog.auto && prog.stage < prog.best && S.waveNo >= CONFIG.waves) enterStage(prog.stage + 1, `자동: 스테이지 ${prog.stage + 1}로 복귀`);
+      else if (S.bossReady && prog.auto && !S.inBoss && (!S.bossFailed || S.sinceFail >= CONFIG.autoRetryWaves) && prog.stage >= prog.best) startBoss();
+      else startWave();
+    }
+  } else if (!S.inBoss) {
+    S.waveT += dt;
+    while (S.queue.length && S.queue[0].t <= S.waveT) { spawn(S.queue[0].type); S.queue.shift(); }
   }
 
   // 이동·공격
-  const frozen = S.t < S.freezeUntil;
+  const frozen = S.t < S.freezeUntil, slow = S.t < S.slowUntil ? 0.5 : 1;
   let dmg = 0;
   for (const m of S.monsters) {
     if (m.dead) continue;
     m.hitFlash = Math.max(0, m.hitFlash - dt);
     if (frozen) continue;
     if (!m.attached) {
-      const slow = S.t < S.slowUntil ? 0.5 : 1;
       m.x -= m.speed * slow * dt;
-      if (m.x <= m.stopX) { m.x = m.stopX; m.attached = true; }
-    } else dmg += CONFIG.dps[m.type] * dt;
+      if (m.x <= m.stopX) {
+        m.x = m.stopX;
+        if (m.type === 'boss') { bossFail(); return; }
+        m.attached = true;
+      }
+    } else dmg += monAtk(m.type, prog.stage) * dt;
   }
-  if (dmg > 0) {
-    S.lastHit = S.t;
-    const a = Math.min(S.shield, dmg); S.shield -= a; S.hp -= (dmg - a);
-  }
+  S.wall -= dmg;
   S.monsters = S.monsters.filter(m => !m.dead);
-  if (S.hp < CONFIG.wallHP * CONFIG.autoHeal && S.hp > 0 && (S.inv['체력'] || 0) > 0) useItem('체력', true);
+  if (S.wall <= 0) { collapse(); return; }
+
+  // 웨이브 클리어
+  if (!S.inBoss && S.gap <= 0 && !S.queue.length && !S.monsters.length) {
+    S.collapseStreak = 0;
+    if (S.waveNo < CONFIG.waves) S.waveNo++;
+    if (S.bossReady || S.waveNo >= CONFIG.waves) {
+      if (!S.bossReady) { S.bossReady = true; if (!prog.auto) banner("보스 도전 가능 · '보스'를 입력하세요"); }
+      if (S.bossFailed) S.sinceFail++;
+    }
+    S.gap = CONFIG.waveGap;
+  }
 
   for (const f of S.fx) f.t += dt;
   S.fx = S.fx.filter(f => f.t < f.d);
   for (const f of S.floaters) f.t += dt;
   S.floaters = S.floaters.filter(f => f.t < (f.big ? 1.6 : 1));
 
-  // 분당 타수
   const cutoff = S.st.time - CONFIG.cpmWindow;
   while (S.st.events.length && S.st.events[0][0] < cutoff) S.st.events.shift();
   if (S.st.time > 8) S.st.peak = Math.max(S.st.peak, curCPM());
-
-  if (S.hp <= 0) { S.hp = 0; gameOver(); return; }
-  if (!S.queue.length && !S.monsters.length) waveClear();
 }
 function curCPM() {
   const span = Math.min(CONFIG.cpmWindow, Math.max(S.st.time, 1));
@@ -610,11 +695,12 @@ function accuracy() { const tot = S.st.inputs + S.st.typos; return tot ? Math.ro
 let ground = null;
 function shade(c, f) { return `rgb(${c.map(v => Math.round(v * f)).join(',')})`; }
 function buildGround() {
-  const th = THEMES[Math.floor((S.stage - 1) / 4) % THEMES.length];
-  const f = 1 - ((S.stage - 1) % 4) * 0.09;
+  const s = prog.stage;
+  const th = THEMES[Math.floor((s - 1) / 4) % THEMES.length];
+  const f = 1 - ((s - 1) % 4) * 0.09;
   ground = document.createElement('canvas'); ground.width = W; ground.height = H;
   const g = ground.getContext('2d');
-  let seed = S.stage * 9301;
+  let seed = s * 9301;
   const rr = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
   const T = 64;
   for (let y = 0; y < H; y += T) for (let x = 0; x < W; x += T) {
@@ -623,17 +709,15 @@ function buildGround() {
     for (let i = 0; i < 3; i++) { g.fillStyle = shade(th.speck, f * (0.8 + rr() * 0.4)); g.globalAlpha = .35; g.fillRect(x + rr() * T, y + rr() * T, 3 + rr() * 4, 2 + rr() * 3); }
     g.globalAlpha = 1;
   }
-  // 상단 그늘
   const gr = g.createLinearGradient(0, 0, 0, 160); gr.addColorStop(0, 'rgba(0,0,0,.55)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
   g.fillStyle = gr; g.fillRect(0, 0, W, 160);
   ground.theme = th.name;
 }
+function roundRect(x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
 
 function drawWall() {
-  // 성 안쪽 바닥
   ctx.fillStyle = '#3b3442'; ctx.fillRect(0, 0, WALL_X - 52, H);
   ctx.fillStyle = 'rgba(0,0,0,.25)'; for (let y = 0; y < H; y += 40) ctx.fillRect(0, y, WALL_X - 52, 2);
-  // 성벽
   const x0 = WALL_X - 52;
   for (let y = 120; y < H; y += 26) {
     const off = (y / 26) % 2 ? 0 : 13;
@@ -642,21 +726,12 @@ function drawWall() {
       ctx.fillRect(Math.max(x, x0) + 1, y + 1, Math.min(24, WALL_X - Math.max(x, x0) - 1), 24);
     }
   }
-  // 총안
   for (let y = 120; y < H; y += 60) { ctx.fillStyle = '#6c6372'; ctx.fillRect(WALL_X - 4, y - 14, 14, 30); }
-  // 금(체력 비례)
-  const dmg = 1 - S.hp / CONFIG.wallHP;
+  const dmg = (S.mode === 'play' || S.mode === 'pause' || S.mode === 'shop') ? 1 - Math.max(0, S.wall) / wallMax() : 0;
   ctx.strokeStyle = 'rgba(30,20,30,.75)'; ctx.lineWidth = 2;
   for (let i = 0; i < Math.floor(dmg * 10); i++) {
     const y = 160 + i * 52; ctx.beginPath(); ctx.moveTo(WALL_X - 40, y); ctx.lineTo(WALL_X - 24, y + 14); ctx.lineTo(WALL_X - 34, y + 30); ctx.lineTo(WALL_X - 12, y + 40); ctx.stroke();
   }
-  // 보호막
-  if (S.shield > 0) {
-    const a = .18 + .22 * (S.shield / SHIELD_MAX);
-    ctx.fillStyle = `rgba(124,198,232,${a})`; ctx.fillRect(WALL_X + 2, 120, 10, H - 120);
-    ctx.strokeStyle = `rgba(160,220,250,${a + .3})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(WALL_X + 12, 120); ctx.lineTo(WALL_X + 12, H); ctx.stroke();
-  }
-  // 수비병 (궁수 셋)
   for (const [x, y] of ARCHERS) {
     ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(x, y + 34, 22, 6, 0, 0, 7); ctx.fill();
     if (IMG.archer) { ctx.drawImage(IMG.archer, x - 42, y + 38 - 84, 84, 84); continue; }
@@ -669,47 +744,31 @@ function drawWall() {
 
 function drawMonster(m) {
   const r = R[m.type];
-  const bob = S.t < S.freezeUntil ? 0 : Math.sin(S.t * 9 + m.seed) * 3;
-  const lunge = m.attached && S.t >= S.freezeUntil ? Math.max(0, Math.sin(S.t * 7 + m.seed)) * -6 : 0;
-  const x = m.x + lunge, y = m.y + bob;
-  ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(m.x, m.y + r * .95, r * 1.2, r * .3, 0, 0, 7); ctx.fill();
+  const frozen = S.t < S.freezeUntil;
+  const lunge = m.attached && !frozen ? Math.max(0, Math.sin(S.t * 7 + m.seed)) * -6 : 0;
+  const x = m.x + lunge;
+  const bottom = m.y + r * .95;
+  ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(m.x, bottom, r * 1.2, r * .3, 0, 0, 7); ctx.fill();
   const im = IMG[m.type];
+  const sq = frozen ? 0 : Math.sin(S.t * 9 + m.seed) * .05;
   if (im) {
-    const frozen = S.t < S.freezeUntil;
-    const sq = frozen ? 0 : Math.sin(S.t * 9 + m.seed) * .05;      // 말랑하게 늘었다 줄었다
-    const sz = r * SPRITE[m.type], w = sz * (1 + sq), h = sz * (1 - sq);
-    const bottom = m.y + r * .95;
+    const sz = r * SPRITE, w = sz * (1 + sq), h = sz * (1 - sq);
     ctx.save();
     if (m.hitFlash > 0) ctx.filter = 'brightness(2.2)';
     else if (frozen) ctx.filter = 'saturate(.35) brightness(1.15) hue-rotate(150deg)';
     ctx.drawImage(im, x - w / 2, bottom - h, w, h);
     ctx.restore();
-    if (m.type === 'boss') for (let i = 0; i < m.texts.length; i++) { ctx.fillStyle = i < m.idx ? '#555' : '#f2b544'; ctx.fillRect(x - 24 + i * 26, bottom + 8, 22, 6); }
-    return;
+  } else {
+    const y = m.y + (frozen ? 0 : Math.sin(S.t * 9 + m.seed) * 3);
+    const body = m.type === 'boss' ? '#b8392f' : m.type === 'elite' ? '#7d4fc0' : '#5fae4a';
+    ctx.fillStyle = m.hitFlash > 0 ? '#fff' : body; ctx.beginPath(); ctx.ellipse(x, y, r, r * .9, 0, 0, 7); ctx.fill();
+    for (const s of [-1, 1]) { ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x - r * .3 + s * r * .26, y - r * .15, r * .2, 0, 7); ctx.fill(); }
   }
-  const body = m.type === 'boss' ? '#b8392f' : m.type === 'elite' ? '#7d4fc0' : '#5fae4a';
-  const dark = m.type === 'boss' ? '#7e211b' : m.type === 'elite' ? '#4f2f85' : '#3d7a2e';
-  ctx.fillStyle = dark; ctx.beginPath(); ctx.ellipse(x + 3, y + 3, r, r * .92, 0, 0, 7); ctx.fill();
-  ctx.fillStyle = m.hitFlash > 0 ? '#fff' : body; ctx.beginPath(); ctx.ellipse(x, y, r, r * .9, 0, 0, 7); ctx.fill();
-  if (m.type === 'elite') {
-    ctx.fillStyle = '#e8dccb';
-    for (const s of [-1, 1]) { ctx.beginPath(); ctx.moveTo(x + s * r * .45, y - r * .7); ctx.lineTo(x + s * r * .75, y - r * 1.35); ctx.lineTo(x + s * r * .15, y - r * .82); ctx.fill(); }
-  }
-  if (m.type === 'boss') {
-    ctx.fillStyle = '#f2b544'; ctx.beginPath();
-    ctx.moveTo(x - 30, y - 38); ctx.lineTo(x - 30, y - 62); ctx.lineTo(x - 15, y - 48); ctx.lineTo(x, y - 68); ctx.lineTo(x + 15, y - 48); ctx.lineTo(x + 30, y - 62); ctx.lineTo(x + 30, y - 38); ctx.fill();
-  }
-  // 눈(성 쪽을 봄)
-  for (const s of [-1, 1]) {
-    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x - r * .3 + s * r * .26, y - r * .15, r * .2, 0, 7); ctx.fill();
-    ctx.fillStyle = '#1a1420'; ctx.beginPath(); ctx.arc(x - r * .36 + s * r * .26, y - r * .13, r * .1, 0, 7); ctx.fill();
-  }
-  ctx.fillStyle = '#1a1420'; ctx.fillRect(x - r * .5, y + r * .3, r * .5, r * .1);
-  if (S.t < S.freezeUntil) { ctx.fillStyle = 'rgba(124,198,232,.45)'; ctx.beginPath(); ctx.ellipse(x, y, r, r * .9, 0, 0, 7); ctx.fill(); }
-  // 보스 진행 표시
-  if (m.type === 'boss') {
-    for (let i = 0; i < m.texts.length; i++) { ctx.fillStyle = i < m.idx ? '#555' : '#f2b544'; ctx.fillRect(x - 24 + i * 26, y + r + 6, 22, 6); }
-  }
+  // 체력 막대
+  const bw = m.type === 'boss' ? 120 : r * 2.4, by = bottom + 8;
+  ctx.fillStyle = 'rgba(14,11,19,.75)'; ctx.fillRect(m.x - bw / 2 - 1, by - 1, bw + 2, 8);
+  ctx.fillStyle = m.type === 'boss' ? '#e0613a' : m.type === 'elite' ? '#b58ae8' : '#8fd16a';
+  ctx.fillRect(m.x - bw / 2, by, bw * Math.max(0, m.hp / m.maxHp), 6);
 }
 
 function wrapText(text, maxW) {
@@ -719,34 +778,32 @@ function wrapText(text, maxW) {
 }
 function drawLabel(m, typed) {
   const isBoss = m.type === 'boss';
-  ctx.font = `700 ${isBoss ? 21 : m.type === 'elite' ? 21 : 23}px "Noto Sans KR", sans-serif`;
+  ctx.font = `700 ${isBoss ? 24 : m.type === 'elite' ? 21 : 23}px "Noto Sans KR", sans-serif`;
   const text = m.text;
-  const lines = isBoss ? wrapText(text, 520) : [text];
-  const lh = isBoss ? 30 : 32;
+  const lines = wrapText(text, 520);
+  const lh = isBoss ? 32 : 30;
   const w = Math.max(...lines.map(l => ctx.measureText(l).width)) + 20;
   const h = lines.length * lh + 8;
   let bx = m.x - w / 2; bx = Math.max(WALL_X + 18, Math.min(W - w - 8, bx));
-  const top = IMG[m.type] ? m.y + R[m.type] * .95 - R[m.type] * SPRITE[m.type] * .96 : m.y - R[m.type] - (isBoss ? 18 : 2);
-  const by = top - 8 - h;
+  const top = IMG[m.type] ? m.y + R[m.type] * .95 - R[m.type] * SPRITE * .96 : m.y - R[m.type] - 6;
+  const by = Math.max(70, top - 8 - h);
   const match = typed && key(text).startsWith(typed);
-  ctx.fillStyle = match ? 'rgba(40,26,8,.92)' : 'rgba(20,16,26,.82)';
+  ctx.fillStyle = match ? 'rgba(40,26,8,.92)' : 'rgba(20,16,26,.84)';
   roundRect(bx, by, w, h, 6); ctx.fill();
   if (match) { ctx.strokeStyle = '#f2b544'; ctx.lineWidth = 2; roundRect(bx, by, w, h, 6); ctx.stroke(); }
-  else if (m.type !== 'normal') { ctx.strokeStyle = isBoss ? 'rgba(224,97,58,.8)' : 'rgba(170,120,230,.7)'; ctx.lineWidth = 1.5; roundRect(bx, by, w, h, 6); ctx.stroke(); }
-  // 글자: 친 부분은 노랑
-  let left = match ? typed.length : 0;   // 친 글자 수 (띄어쓰기·부호 제외)
+  else if (m.type !== 'normal') { ctx.strokeStyle = isBoss ? 'rgba(224,97,58,.9)' : 'rgba(170,120,230,.7)'; ctx.lineWidth = isBoss ? 2 : 1.5; roundRect(bx, by, w, h, 6); ctx.stroke(); }
+  let left = match ? typed.length : 0;
   ctx.textBaseline = 'middle';
   lines.forEach((ln, i) => {
     let x = bx + 10; const y = by + 4 + lh * i + lh / 2;
     let n = 0;
     while (n < ln.length && left > 0) { if (key(ln[n])) left--; n++; }
-    while (n < ln.length && !key(ln[n]) && match && left === 0 && n > 0 && /[.,?!]/.test(ln[n])) n++;   // 바로 뒤 부호도 같이 칠함
+    while (n < ln.length && match && left === 0 && n > 0 && /[.,?!]/.test(ln[n])) n++;
     const a = ln.slice(0, n), b = ln.slice(n);
     ctx.fillStyle = '#f2b544'; ctx.fillText(a, x, y); x += ctx.measureText(a).width;
     ctx.fillStyle = '#efe6d2'; ctx.fillText(b, x, y);
   });
 }
-function roundRect(x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
 
 function drawFx() {
   for (const f of S.fx) {
@@ -758,85 +815,107 @@ function drawFx() {
     } else if (f.k === 'boom') {
       ctx.fillStyle = `rgba(${f.c},${.6 * (1 - p)})`; ctx.beginPath(); ctx.arc(f.x, f.y, f.r * (.4 + p * .6), 0, 7); ctx.fill();
       for (let i = 0; i < 8; i++) { const a = i / 8 * 6.28 + f.x; ctx.fillStyle = `rgba(${f.c},${1 - p})`; ctx.fillRect(f.x + Math.cos(a) * f.r * p, f.y + Math.sin(a) * f.r * p, 5, 5); }
-    } else if (f.k === 'bolt') {
-      ctx.strokeStyle = `rgba(190,220,255,${1 - p})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(f.x0, f.y0);
-      for (let i = 1; i < 6; i++) ctx.lineTo(f.x0 + (f.x1 - f.x0) * i / 6 + (Math.random() - .5) * 24, f.y0 + (f.y1 - f.y0) * i / 6 + (Math.random() - .5) * 24);
-      ctx.lineTo(f.x1, f.y1); ctx.stroke();
-    } else if (f.k === 'heal') {
-      ctx.fillStyle = `rgba(143,209,106,${.35 * (1 - p)})`; ctx.fillRect(WALL_X - 52, 64, 64, H - 64);
-      for (let i = 0; i < 10; i++) { ctx.fillStyle = `rgba(190,240,160,${1 - p})`; ctx.fillRect(WALL_X - 46 + (i * 23) % 56, H - 80 - p * 420 - (i * 61) % 300, 6, 6); }
     } else if (f.k === 'wind') {
       ctx.strokeStyle = `rgba(235,245,255,${.7 * (1 - p)})`; ctx.lineWidth = 3;
       for (let i = 0; i < 9; i++) { const y = 130 + i * 62, x = WALL_X + 40 + p * 700 + (i * 137) % 200; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + 160, y); ctx.stroke(); }
-    } else if (f.k === 'ring') {
-      ctx.strokeStyle = `rgba(160,220,250,${1 - p})`; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(WALL_X + 14 + p * 20, 120); ctx.lineTo(WALL_X + 14 + p * 20, H); ctx.stroke();
     }
   }
-  ctx.font = '400 22px "Do Hyeon", sans-serif'; ctx.textAlign = 'center';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   for (const f of S.floaters) {
-    if (f.big) { ctx.font = '400 34px "Do Hyeon", sans-serif'; ctx.fillStyle = 'rgba(0,0,0,' + Math.min(.6, 1.6 - f.t) + ')'; ctx.fillText(f.text, f.x + 2, f.y + 2); ctx.fillStyle = `rgba(${f.col || '242,181,68'},${Math.min(1, 1.6 - f.t)})`; ctx.fillText(f.text, f.x, f.y); ctx.font = '400 22px "Do Hyeon", sans-serif'; }
-    else { ctx.fillStyle = `rgba(242,181,68,${1 - f.t})`; ctx.fillText(f.text, f.x, f.y - f.t * 30); }
+    if (f.big) {
+      ctx.font = '400 34px "Do Hyeon", sans-serif';
+      ctx.fillStyle = 'rgba(0,0,0,' + Math.min(.6, 1.6 - f.t) + ')'; ctx.fillText(f.text, f.x + 2, f.y + 2);
+      ctx.fillStyle = `rgba(${f.col || '242,181,68'},${Math.min(1, 1.6 - f.t)})`; ctx.fillText(f.text, f.x, f.y);
+    } else {
+      const a = 1 - f.t;
+      ctx.font = f.crit ? '400 30px "Do Hyeon", sans-serif' : '400 22px "Do Hyeon", sans-serif';
+      ctx.fillStyle = `rgba(0,0,0,${a * .6})`; ctx.fillText(f.text, f.x + 2, f.y - f.t * 30 + 2);
+      ctx.fillStyle = f.gold ? `rgba(242,181,68,${a})` : f.crit ? `rgba(255,110,80,${a})` : `rgba(255,255,255,${a})`;
+      ctx.fillText(f.text, f.x, f.y - f.t * 30);
+    }
   }
   ctx.textAlign = 'left';
 }
 
 function drawHUD() {
-  // 위 띠
-  ctx.fillStyle = 'rgba(14,11,19,.72)'; ctx.fillRect(0, 0, W, 64);
+  ctx.fillStyle = 'rgba(14,11,19,.75)'; ctx.fillRect(0, 0, W, 64);
   ctx.textBaseline = 'middle';
   ctx.font = '400 30px "Do Hyeon", sans-serif'; ctx.fillStyle = '#f2b544';
-  const tw = ctx.measureText(`스테이지 ${S.stage}`).width;
-  ctx.fillText(`스테이지 ${S.stage}`, 20, 32);
-  ctx.font = '700 15px "Noto Sans KR", sans-serif'; ctx.fillStyle = '#a99fb4';
-  ctx.fillText(`${ground.theme} · 웨이브 ${Math.max(1, S.wave)}/${CONFIG.wavesPerStage}`, 34 + tw, 33);
-  // 성벽 체력
-  const bx = 360, bw = 300;
+  const title = `스테이지 ${prog.stage}`;
+  const tw = ctx.measureText(title).width;
+  ctx.fillText(title, 20, 32);
+  // 진행 상태
+  let status;
+  if (S.inBoss) status = '보스전';
+  else if (S.bossReady) status = prog.stage < prog.best ? (prog.auto ? `복귀까지 웨이브 ${Math.max(0, CONFIG.waves - S.waveNo)}` : "'다음'으로 이동 가능") : (prog.auto ? (S.bossFailed ? `재도전까지 웨이브 ${Math.max(0, CONFIG.autoRetryWaves - S.sinceFail)}` : '곧 보스 도전') : "'보스' 입력으로 도전");
+  else status = `웨이브 ${Math.min(S.waveNo + 1, CONFIG.waves)}/${CONFIG.waves}`;
+  ctx.font = '700 14px "Noto Sans KR", sans-serif'; ctx.fillStyle = '#a99fb4';
+  ctx.fillText(`${ground.theme} · ${status}`, 32 + tw, 25);
+  ctx.fillText(`최고 ${prog.best}`, 32 + tw, 44);
+  // 성벽
+  const bx = 400, bw = 250, wm = wallMax();
   ctx.fillStyle = '#2a2532'; roundRect(bx, 20, bw, 24, 5); ctx.fill();
-  const r = S.hp / CONFIG.wallHP;
+  const r = Math.max(0, S.wall) / wm;
   ctx.fillStyle = r > .5 ? '#d9953a' : r > .25 ? '#e0703a' : '#d8432f'; roundRect(bx, 20, Math.max(6, bw * r), 24, 5); ctx.fill();
-  if (S.shield > 0) { ctx.fillStyle = 'rgba(124,198,232,.85)'; ctx.fillRect(bx, 40, bw * S.shield / SHIELD_MAX, 4); }
-  ctx.fillStyle = '#fff'; ctx.font = '700 14px "Noto Sans KR", sans-serif'; ctx.textAlign = 'center';
-  ctx.fillText(`성벽 ${Math.ceil(S.hp).toLocaleString()} / ${CONFIG.wallHP.toLocaleString()}`, bx + bw / 2, 33);
+  ctx.fillStyle = '#fff'; ctx.font = '700 13px "Noto Sans KR", sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText(`성벽 ${fmt(Math.max(0, S.wall))} / ${fmt(wm)}`, bx + bw / 2, 33);
   ctx.textAlign = 'left';
-  // 골드
-  ctx.font = '400 26px "Do Hyeon", sans-serif'; ctx.fillStyle = '#f2b544'; ctx.fillText(`${S.gold} G`, 690, 33);
-  // 분당 타수 (항상 표시)
+  // 골드·공격력
+  ctx.font = '400 26px "Do Hyeon", sans-serif'; ctx.fillStyle = '#f2b544'; ctx.fillText(`${fmt(prog.gold)} G`, 672, 26);
+  ctx.font = '700 12px "Noto Sans KR", sans-serif'; ctx.fillStyle = '#a99fb4';
+  ctx.fillText(`공격 ${fmt(upVal('atk'))}/글자 · 치명 ${Math.round(upVal('crit') * 100)}% ×${upVal('cdmg').toFixed(1)}`, 672, 48);
+  // 분당 타수
   ctx.textAlign = 'right';
   ctx.font = '700 13px "Noto Sans KR", sans-serif';
-  ctx.fillStyle = S.combo >= 5 ? '#f2b544' : '#a99fb4'; ctx.fillText(`콤보 ${S.combo}`, W - 20, 23);
-  ctx.fillStyle = '#a99fb4'; ctx.fillText(`정확도 ${accuracy()}%`, W - 20, 44);
-  ctx.fillText('분당 타수', W - 130, 23);
-  ctx.fillText(`평균 ${avgCPM()}`, W - 130, 44);
+  ctx.fillStyle = '#a99fb4'; ctx.fillText(`콤보 ${S.combo}`, W - 20, 23);
+  ctx.fillText(`정확도 ${accuracy()}%`, W - 20, 44);
+  ctx.fillText('분당 타수', W - 120, 23);
+  ctx.fillText(`평균 ${avgCPM()}`, W - 120, 44);
   ctx.font = '400 44px "Do Hyeon", sans-serif'; ctx.fillStyle = '#efe6d2';
-  ctx.fillText(`${curCPM()}`, W - 210, 34);
+  ctx.fillText(`${curCPM()}`, W - 196, 34);
   ctx.textAlign = 'left';
-  // 보유 소모품: 성 안쪽에 세로로
-  let y = H - 40;
-  for (const n of Object.keys(ITEMS)) {
-    const c = S.inv[n] || 0; if (!c) continue;
-    const x = 8, w = WALL_X - 66;
-    ctx.fillStyle = 'rgba(14,11,19,.82)'; roundRect(x, y, w, 30, 6); ctx.fill();
-    ctx.font = '400 19px "Do Hyeon", sans-serif'; ctx.fillStyle = '#f2b544'; ctx.fillText(n, x + 10, y + 16);
-    ctx.font = '700 13px "Noto Sans KR", sans-serif'; ctx.fillStyle = '#efe6d2'; ctx.textAlign = 'right'; ctx.fillText(`×${c}`, x + w - 10, y + 16); ctx.textAlign = 'left';
-    y -= 36;
+  // 보스 체력·남은 시간
+  const boss = S.monsters.find(m => m.type === 'boss' && !m.dead);
+  if (boss) {
+    const x = WALL_X + 40, w = W - WALL_X - 80, y = 76;
+    ctx.fillStyle = 'rgba(14,11,19,.8)'; roundRect(x - 4, y - 4, w + 8, 34, 6); ctx.fill();
+    ctx.fillStyle = '#3a2028'; ctx.fillRect(x, y, w, 26);
+    ctx.fillStyle = '#e0613a'; ctx.fillRect(x, y, w * Math.max(0, boss.hp / boss.maxHp), 26);
+    ctx.fillStyle = '#fff'; ctx.font = '700 14px "Noto Sans KR", sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(`보스 ${fmt(Math.max(0, boss.hp))} / ${fmt(boss.maxHp)}`, x + w / 2, y + 14);
+    ctx.textAlign = 'right'; ctx.font = '400 24px "Do Hyeon", sans-serif';
+    const tl = bossTimeLeft(boss);
+    ctx.fillStyle = tl < 8 ? '#ff7a5c' : '#efe6d2'; ctx.fillText(`${tl.toFixed(1)}초`, x + w - 8, y + 14);
+    ctx.textAlign = 'left';
   }
-  ctx.font = '700 12px "Noto Sans KR", sans-serif'; ctx.fillStyle = '#a99fb4';
-  if (y < H - 40) ctx.fillText('이름을 치면 사용', 10, y + 20);
+  // 소모품 (성 안쪽)
+  let yy = H - 40;
+  for (const n of Object.keys(ITEMS)) {
+    const c = prog.inv[n] || 0; if (!c) continue;
+    const x = 8, w = WALL_X - 66;
+    ctx.fillStyle = 'rgba(14,11,19,.82)'; roundRect(x, yy, w, 30, 6); ctx.fill();
+    ctx.font = '400 19px "Do Hyeon", sans-serif'; ctx.fillStyle = '#f2b544'; ctx.fillText(n, x + 10, yy + 16);
+    ctx.font = '700 13px "Noto Sans KR", sans-serif'; ctx.fillStyle = '#efe6d2'; ctx.textAlign = 'right'; ctx.fillText(`×${c}`, x + w - 10, yy + 16); ctx.textAlign = 'left';
+    yy -= 36;
+  }
+  if (yy < H - 40) { ctx.font = '700 12px "Noto Sans KR", sans-serif'; ctx.fillStyle = '#a99fb4'; ctx.fillText('이름을 치면 사용', 10, yy + 20); }
   // 효과 남은 시간
   const eff = [];
   if (S.t < S.freezeUntil) eff.push(`얼음 ${Math.ceil(S.freezeUntil - S.t)}초`);
   if (S.t < S.slowUntil) eff.push(`늪 ${Math.ceil(S.slowUntil - S.t)}초`);
-  if (S.shield > 0) eff.push(`방패 ${Math.ceil(S.shield)}`);
+  if (S.t < S.focusUntil) eff.push(`집중 ${Math.ceil(S.focusUntil - S.t)}초`);
+  if (S.sureCrit > 0) eff.push(`필살 ${S.sureCrit}회`);
+  const ey = boss ? 120 : 76;
   eff.forEach((t, i) => { ctx.font = '700 13px "Noto Sans KR", sans-serif'; const w = ctx.measureText(t).width + 18;
-    ctx.fillStyle = 'rgba(14,11,19,.75)'; roundRect(WALL_X + 20, 76 + i * 30, w, 24, 5); ctx.fill(); ctx.fillStyle = '#7cc6e8'; ctx.fillText(t, WALL_X + 29, 89 + i * 30); });
-  // 상태 효과
+    ctx.fillStyle = 'rgba(14,11,19,.78)'; roundRect(WALL_X + 20, ey + i * 30, w, 24, 5); ctx.fill(); ctx.fillStyle = '#7cc6e8'; ctx.fillText(t, WALL_X + 29, ey + 13 + i * 30); });
   if (S.t < S.freezeUntil) { ctx.fillStyle = 'rgba(124,198,232,.12)'; ctx.fillRect(WALL_X, 64, W, H); }
   // 배너
   if (S.banner) {
-    const a = Math.min(1, S.banner.t * 4, (1.8 - S.banner.t) * 3);
-    ctx.globalAlpha = a; ctx.font = '400 64px "Do Hyeon", sans-serif'; ctx.textAlign = 'center';
-    ctx.fillStyle = 'rgba(0,0,0,.5)'; ctx.fillText(S.banner.text, W / 2 + 3, H / 2 + 3);
-    ctx.fillStyle = '#f2b544'; ctx.fillText(S.banner.text, W / 2, H / 2);
+    const a = Math.min(1, S.banner.t * 4, (2.2 - S.banner.t) * 3);
+    ctx.globalAlpha = Math.max(0, a); ctx.textAlign = 'center';
+    ctx.font = '400 46px "Do Hyeon", sans-serif';
+    ctx.fillStyle = 'rgba(0,0,0,.55)'; ctx.fillText(S.banner.text, (W + WALL_X) / 2 + 3, H / 2 + 3);
+    ctx.fillStyle = `rgb(${S.banner.col || '242,181,68'})`; ctx.fillText(S.banner.text, (W + WALL_X) / 2, H / 2);
     ctx.textAlign = 'left'; ctx.globalAlpha = 1;
   }
 }
@@ -849,145 +928,120 @@ function draw() {
     ctx.fillStyle = 'rgba(40,70,30,.45)'; for (let i = 0; i < 26; i++) { ctx.beginPath(); ctx.ellipse(WALL_X + 40 + (i * 157) % (W - WALL_X - 60), 150 + (i * 97) % 540, 20, 6, 0, 0, 7); ctx.fill(); }
   }
   drawWall();
-  const ms = [...S.monsters].sort((a, b) => a.y - b.y);
-  for (const m of ms) if (m.x < W + 80) drawMonster(m);
+  if (S.mode === 'title' || S.mode === 'manage') return;
+  const ms = [...S.monsters].filter(m => !m.dead && m.x < W + 80).sort((a, b) => a.y - b.y);
+  for (const m of ms) drawMonster(m);
   const typed = key(typing.value);
-  for (const m of ms) if (m.x < W + 80) drawLabel(m, typed);
+  for (const m of ms) drawLabel(m, typed);
   drawFx();
   drawHUD();
 }
 
 /* =====================================================================
-   흐름: 웨이브 클리어 → 상점 / 스테이지 클리어 / 게임오버
+   상점 (강화)
    ===================================================================== */
-function waveClear() {
-  if (S.wave < CONFIG.wavesPerStage) { S.wave++; openShop(); }
-  else stageClear();
+const UP_KEYS = ['atk', 'crit', 'cdmg', 'wall'];
+function fmtVal(k, v) {
+  if (k === 'crit') return Math.round(v * 100) + '%';
+  if (k === 'cdmg') return Math.round(v * 100) + '%';
+  return fmt(v);
 }
-function statBlock() {
-  return [
-    ['평균 분당 타수', avgCPM()], ['최고 분당 타수', S.st.peak], ['정확도', accuracy() + '%'], ['처치', S.st.kills],
-  ].map(([k, v]) => `<div class="stat"><span>${k}</span><b>${v}</b></div>`).join('');
-}
-function recordBest(cleared) {
-  const b = save.best[S.stage] || {};
-  if (cleared) b.clear = true;
-  b.cpm = Math.max(b.cpm || 0, avgCPM());
-  save.best[S.stage] = b; persist();
-}
-function stageClear() {
-  recordBest(true);
-  if (S.stage < CONFIG.stages) save.unlocked = Math.max(save.unlocked, S.stage + 1);
-  persist();
-  const last = S.stage >= CONFIG.stages;
-  showResult(last ? '모든 스테이지 클리어!' : `스테이지 ${S.stage} 클리어`,
-    last ? '성을 끝까지 지켜냈습니다.' : `다음은 스테이지 ${S.stage + 1}. 상점에 들렀다 출발합니다.`,
-    last ? [['btn main', '<span class="k">Enter</span>타이틀로', toTitle]]
-         : [['btn main', '<span class="k">Enter</span>상점으로', () => { S.stage++; S.wave = 0; S.pendingNewStage = true; openShop(); }], ['btn', '타이틀로', toTitle]]);
-}
-function gameOver() {
-  recordBest(false);
-  showResult('성벽이 무너졌습니다', `스테이지 ${S.stage} · 웨이브 ${S.wave}에서 막혔습니다.`,
-    [['btn main', '<span class="k">Enter</span>이 스테이지 다시', () => startRun(S.stage)], ['btn', '타이틀로', toTitle]]);
-}
-let resultEnter = null;
-function showResult(title, sub, btns) {
-  document.getElementById('resTitle').textContent = title;
-  document.getElementById('resSub').textContent = sub;
-  document.getElementById('resStats').innerHTML = statBlock();
-  const box = document.getElementById('resBtns'); box.innerHTML = '';
-  btns.forEach(([cls, html, fn], i) => { const b = document.createElement('button'); b.className = cls; b.innerHTML = html; b.onclick = fn; box.appendChild(b); if (!i) resultEnter = fn; });
-  setMode('result');
-}
-
-/* 상점: 소모품 중 무작위 4개 */
-function rollOffers() {
-  S.offers = Object.keys(ITEMS).sort(() => Math.random() - .5).slice(0, CONFIG.shopSlots);
-}
-function openShop() {
-  S.rerollCost = CONFIG.rerollBase; rollOffers(); renderShop(); setMode('shop');
-}
+function openShop() { renderShop(); setMode('shop'); }
 function renderShop() {
-  const nextLabel = S.pendingNewStage ? `스테이지 ${S.stage} 시작` : `웨이브 ${S.wave} 시작`;
-  document.getElementById('shopTitle').textContent = '상점';
-  document.getElementById('shopSub').textContent = `보유 골드 ${S.gold} G · 숫자 키로 구매(여러 번 누르면 여러 개), R로 새로고침. 전투 중에 이름을 치면 사용합니다.`;
-  document.getElementById('btnNext').innerHTML = `<span class="k">Enter</span>${nextLabel}`;
-  const rb = document.getElementById('btnReroll');
-  rb.innerHTML = `<span class="k">R</span>새로고침 ${S.rerollCost} G`; rb.disabled = S.gold < S.rerollCost;
+  document.getElementById('shopSub').textContent = `보유 골드 ${fmt(prog.gold)} G · 숫자 키 1~4로 구매 (여러 번 눌러 연속 구매), Enter로 닫기. 전투는 멈춰 있어요.`;
   const box = document.getElementById('shopCards'); box.innerHTML = '';
-  S.offers.forEach((n, i) => {
-    const it = ITEMS[n], c = S.inv[n] || 0, full = c >= CONFIG.itemMax;
+  UP_KEYS.forEach((k, i) => {
+    const u = CONFIG.upgrades[k], L = prog.up[k];
+    const maxed = u.max !== undefined && L >= u.max;
+    const cost = u.cost(L);
     const b = document.createElement('button'); b.className = 'card';
-    b.disabled = full || S.gold < it.price;
-    b.innerHTML = `<span class="nm"><span class="k">${i + 1}</span>${n}</span><span class="ds">${it.desc}</span><span class="lv">보유 ${c} / ${CONFIG.itemMax}${full ? ' · 가득 참' : ''}</span><span class="pr">${it.price} G</span>`;
-    b.onclick = () => buy(i);
+    b.disabled = maxed || prog.gold < cost;
+    const extra = k === 'wall' ? '<span class="lv">강화하면 지금 성벽도 그만큼 늘어나요</span>' : '';
+    b.innerHTML = `<span class="nm"><span class="k">${i + 1}</span>${u.name}</span><span class="lv">${L}단계</span>`
+      + `<span class="val">${fmtVal(k, u.val(L))}${maxed ? ' (최대)' : ` → <i>${fmtVal(k, u.val(L + 1))}</i>`}</span>${extra}`
+      + `<span class="pr">${maxed ? '최대 단계' : fmt(cost) + ' G'}</span>`;
+    b.onclick = () => buyUp(i);
     box.appendChild(b);
   });
-  const owned = Object.keys(ITEMS).filter(n => S.inv[n]).map(n => `${n} ×${S.inv[n]}`);
-  document.getElementById('ownedList').textContent = owned.length ? '보유 소모품: ' + owned.join(' · ') : '보유 소모품 없음';
+  updateAutoUI();
+  const owned = Object.keys(ITEMS).filter(n => prog.inv[n]).map(n => `${n} ×${prog.inv[n]}`);
+  document.getElementById('ownedList').innerHTML = (owned.length ? '보유 소모품: ' + owned.join(' · ') : '보유 소모품 없음')
+    + `<br>소모품은 보스를 잡으면 ${Math.round(CONFIG.itemDrop * 100)}% 확률로 얻습니다 (종류별 최대 ${CONFIG.itemMax}개).`;
 }
-function buy(i) {
-  const n = S.offers[i]; if (!n) return;
-  const it = ITEMS[n];
-  if ((S.inv[n] || 0) >= CONFIG.itemMax || S.gold < it.price) return;
-  S.gold -= it.price; S.inv[n] = (S.inv[n] || 0) + 1;
-  renderShop();
+function buyUp(i) {
+  const k = UP_KEYS[i]; if (!k) return;
+  const u = CONFIG.upgrades[k], L = prog.up[k];
+  if (u.max !== undefined && L >= u.max) return;
+  const cost = u.cost(L); if (prog.gold < cost) return;
+  const before = wallMax();
+  prog.gold -= cost; prog.up[k]++;
+  if (k === 'wall') S.wall += wallMax() - before;
+  saveProg(); renderShop();
 }
-function reroll() { if (S.gold < S.rerollCost) return; S.gold -= S.rerollCost; S.rerollCost += CONFIG.rerollStep; rollOffers(); renderShop(); }
-function leaveShop() {
-  if (S.pendingNewStage) { S.pendingNewStage = false; startStage(S.stage); }   // 골드·소모품은 이어짐
-  else startWave();
+function updateAutoUI() {
+  const t = `자동 보스 도전: ${prog.auto ? '켜짐' : '꺼짐'}`;
+  document.getElementById('btnAuto').innerHTML = `<span class="k">A</span>${t}`;
+  document.getElementById('autoState').textContent = '· ' + t;
 }
 
 /* =====================================================================
    화면 전환
    ===================================================================== */
-const OV = { title: 'ovTitle', shop: 'ovShop', result: 'ovResult', pause: 'ovPause', manage: 'ovManage' };
+const OV = { title: 'ovTitle', shop: 'ovShop', pause: 'ovPause', manage: 'ovManage' };
 function setMode(m) {
   S.mode = m;
   for (const k in OV) document.getElementById(OV[k]).hidden = (k !== m);
   if (m === 'play') { typing.disabled = false; typing.value = ''; setBad(false); typing.focus(); }
-  else { typing.blur(); if (m !== 'pause') typing.value = ''; typing.disabled = (m !== 'pause'); }
+  else { typing.blur(); typing.value = ''; typing.disabled = true; }
   if (m === 'title') renderTitle();
+  if (m !== 'play') saveProg();
 }
-function toTitle() { S.monsters = []; S.queue = []; S.fx = []; setMode('title'); }
+function startGame() {
+  S.st = newStats(); S.combo = 0; residue = ''; S.collapseStreak = 0;
+  enterStage(prog.stage, `스테이지 ${prog.stage}`);
+  setMode('play');
+}
+function toTitle() { S.monsters = []; S.queue = []; S.fx = []; saveProg(); setMode('title'); }
 function renderTitle() {
-  const g = document.getElementById('stageGrid'); g.innerHTML = '';
-  for (let s = 1; s <= CONFIG.stages; s++) {
-    const b = document.createElement('button'); b.className = 'st';
-    const best = save.best[s];
-    const th = THEMES[Math.floor((s - 1) / 4) % THEMES.length].name;
-    b.innerHTML = `${s}<small>${s > save.unlocked ? '잠김' : best && best.clear ? '클리어 · ' + best.cpm + '자' : best ? '최고 ' + best.cpm + '자' : th}</small>`;
-    b.disabled = s > save.unlocked;
-    b.onclick = () => startRun(s);
-    g.appendChild(b);
-  }
+  document.getElementById('startLabel').textContent = prog.best > 1 || prog.gold > 0 ? `스테이지 ${prog.stage}부터 이어하기` : '시작';
+  const mins = Math.round(prog.totalTime / 60);
+  document.getElementById('titleStats').innerHTML = [
+    ['최고 스테이지', prog.best], ['공격력', fmt(upVal('atk'))], ['보유 골드', fmt(prog.gold)], ['누적 플레이', mins >= 60 ? `${Math.floor(mins / 60)}시간 ${mins % 60}분` : `${mins}분`],
+  ].map(([k, v]) => `<div class="stat"><span>${k}</span><b>${v}</b></div>`).join('');
   document.getElementById('srcLabel').textContent = '출제 문장: ' + SOURCE;
+  wipeArmed = false; document.getElementById('btnWipe').textContent = '진행 초기화';
 }
+let wipeArmed = false;
+document.getElementById('btnWipe').onclick = () => {
+  const b = document.getElementById('btnWipe');
+  if (!wipeArmed) { wipeArmed = true; b.textContent = '정말 초기화할까요? 한 번 더 누르세요'; return; }
+  prog = PROG0(); saveProg(); buildGround(); renderTitle();
+};
+document.getElementById('btnStart').onclick = startGame;
+document.getElementById('btnShopClose').onclick = () => setMode('play');
+document.getElementById('btnAuto').onclick = () => { prog.auto = !prog.auto; saveProg(); renderShop(); };
+document.getElementById('btnResume').onclick = () => setMode('play');
+document.getElementById('btnQuit').onclick = toTitle;
+document.getElementById('btnMode').onclick = () => setSubmitMode(!submitWithEnter);
+setSubmitMode(submitWithEnter);
+updateAutoUI();
 
-/* 키 입력 */
 document.addEventListener('keydown', e => {
   if (S.mode === 'play' && e.key === 'Escape') { e.preventDefault(); setMode('pause'); return; }
   if (S.mode === 'play' && e.key === 'Enter' && submitWithEnter) { e.preventDefault(); setTimeout(submitTyped, 0); return; }
   if (S.mode === 'pause' && e.key === 'Escape') { e.preventDefault(); setMode('play'); return; }
+  if (S.mode === 'title' && e.key === 'Enter' && document.activeElement?.tagName !== 'BUTTON') { e.preventDefault(); startGame(); return; }
   if (S.mode === 'shop') {
     const d = { Digit1: 0, Digit2: 1, Digit3: 2, Digit4: 3, Numpad1: 0, Numpad2: 1, Numpad3: 2, Numpad4: 3 }[e.code];
-    if (d !== undefined) { e.preventDefault(); buy(d); }
-    else if (e.code === 'KeyR') { e.preventDefault(); reroll(); }
-    else if (e.key === 'Enter') { e.preventDefault(); leaveShop(); }
-    return;
+    if (d !== undefined) { e.preventDefault(); buyUp(d); }
+    else if (e.code === 'KeyA') { e.preventDefault(); prog.auto = !prog.auto; saveProg(); renderShop(); }
+    else if (e.key === 'Enter' || e.key === 'Escape') { e.preventDefault(); setMode('play'); }
   }
-  if (S.mode === 'result' && e.key === 'Enter' && resultEnter) { e.preventDefault(); resultEnter(); }
 });
-document.getElementById('btnReroll').onclick = reroll;
-document.getElementById('btnMode').onclick = () => setSubmitMode(!submitWithEnter);
-setSubmitMode(submitWithEnter);
-document.getElementById('btnNext').onclick = leaveShop;
-document.getElementById('btnResume').onclick = () => setMode('play');
-document.getElementById('btnQuit').onclick = toTitle;
-// 전투 중 입력창에서 포커스가 빠지면 되돌림
 document.getElementById('stage').addEventListener('mousedown', e => { if (S.mode === 'play') { e.preventDefault(); typing.focus(); } });
 document.addEventListener('visibilitychange', () => { if (document.hidden && S.mode === 'play') setMode('pause'); });
+window.addEventListener('beforeunload', saveProg);
+setInterval(() => { if (S.mode === 'play') saveProg(); }, 3000);
 
 /* =====================================================================
    문장 관리 (엑셀 일괄 등록)
@@ -1040,8 +1094,7 @@ fileX.onchange = async () => {
     const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, blankrows: false });
     let list = rows.map(r => r && r[0] != null ? String(r[0]) : '').map(cleanSentence).filter(Boolean);
     if (list[0] === '문장') list.shift();
-    const before = boxLines();
-    sentBox.value = before.concat(list).join('\n');
+    sentBox.value = boxLines().concat(list).join('\n');
     manMsg.textContent = `엑셀에서 ${list.length}개 문장을 추가했습니다. '이 브라우저에 적용'이나 'sentences.json 만들기'를 누르세요.`;
   } catch (e) { manMsg.textContent = e.message; }
   fileX.value = '';
@@ -1054,17 +1107,13 @@ let last = performance.now();
 function loop(now) {
   const dt = Math.min(0.05, (now - last) / 1000); last = now;
   if (S.mode === 'play') update(dt);
-  if (S.mode === 'play' || S.mode === 'pause' || S.mode === 'shop' || S.mode === 'result') draw();
-  else drawIdle(now / 1000);
+  draw();
   requestAnimationFrame(loop);
-}
-function drawIdle(t) {
-  if (!ground) buildGround();
-  ctx.drawImage(ground, 0, 0); drawWall();
 }
 (async function boot() {
   try { await document.fonts.load('700 20px "Noto Sans KR"'); await document.fonts.load('20px "Do Hyeon"'); } catch (e) {}
   await loadSentences();
+  buildGround();
   setMode('title');
   requestAnimationFrame(loop);
 })();
