@@ -517,7 +517,7 @@ const WALL_X = 210;
 const SPAWN_X = W + 60;
 const LANES = [215, 300, 385, 470, 555, 640];
 const R = { normal: 22, elite: 30, boss: 50 };
-const typing = document.getElementById('typing');
+let typing = document.getElementById('typing');
 
 /* 그림 파일 (assets 폴더). 파일이 없으면 도형으로 대신 그림 */
 const IMG = {};
@@ -541,7 +541,7 @@ function pkLoad(id) {
   im.onload = () => { let sp = null; try { sp = trimSprite(im); } catch (e) {} PK.set(id, sp || { img: im, w: im.width, h: im.height, out: {} }); };
   im.onerror = () => PK.set(id, 'fail');
   im.src = PK_URL(id);
-  if (PK.size > 140) for (const [k, v] of PK) { if (v !== 'loading' && !S.monsters.some(m => m.pid === k)) { PK.delete(k); break; } }
+  if (PK.size > 140) for (const [k, v] of PK) { if (v !== 'loading' && k > 9 && !S.monsters.some(m => m.pid === k)) { PK.delete(k); break; } }
 }
 /* 투명 여백을 잘라내 발이 땅에 닿게 */
 function trimSprite(im) {
@@ -568,6 +568,58 @@ function outlined(sp, type) {
   g.drawImage(sp.img, p, p);
   return (sp.out[type] = c);
 }
+/* 플레이어 파트너: 성벽 위에서 공격. 공격력 강화 단계(archerAt)에 이르면 진화
+   flip = 공식 일러스트가 왼쪽을 보고 있어서 좌우를 뒤집을 것 */
+const PARTNERS = [
+  { line: [1, 2, 3], names: ['이상해씨', '이상해풀', '이상해꽃'], flip: [0, 0, 0], col: '130,225,95' },
+  { line: [4, 5, 6], names: ['파이리', '리자드', '리자몽'],       flip: [1, 0, 0], col: '255,140,60' },
+  { line: [7, 8, 9], names: ['꼬부기', '어니부기', '거북왕'],     flip: [1, 1, 0], col: '95,175,255' },
+];
+const PARTNER_H = [80, 100, 124];      // 진화 단계별 키(px)
+const PARTNER_POS = [[90, 182], [72, 330], [92, 478]];
+const partnerAnim = PARTNERS.map(() => ({ atk: -9, evo: -9 }));
+const evoStage = () => CONFIG.archerAt.filter(l => prog.up.atk >= l).length;
+function partnersReady() {
+  if (!CONFIG.pokemon) return false;
+  const e = evoStage();
+  return PARTNERS.every(p => typeof PK.get(p.line[e]) === 'object');
+}
+function triggerEvolve() {
+  const e = evoStage();
+  partnerAnim.forEach(a => a.evo = S.t);
+  if (partnersReady() || CONFIG.pokemon) {
+    toast('진화!', PARTNERS.map(p => `${p.names[e - 1]} → ${p.names[e]}`).join(' · '), '242,181,68');
+    play('ach');
+  }
+}
+/* 숨쉬듯 커졌다 작아지고, 공격할 때 크게 튀어나오고, 진화할 때 빛나며 자람 */
+function drawPartners() {
+  const e = evoStage(), rt = performance.now() / 1000;
+  PARTNERS.forEach((p, i) => {
+    const [x, y] = PARTNER_POS[i], an = partnerAnim[i];
+    const sp = PK.get(p.line[e]); if (typeof sp !== 'object') return;
+    let h = PARTNER_H[e], w = h * sp.w / sp.h;
+    if (w > h * 1.35) { h *= h * 1.35 / w; w = h * sp.w / sp.h; }
+    const bottom = y + 40;
+    const br = Math.sin(rt * 2.6 + i * 2.1);
+    let sx = 1 - br * .025, sy = 1 + br * .045, lean = 0, lift = Math.max(0, Math.sin(rt * 2.6 + i * 2.1 + 1)) * 2;
+    const da = S.t - an.atk;
+    if (da >= 0 && da < .3) { const k = Math.sin(da / .3 * Math.PI); sx += k * .2; sy += k * .16; lean = k * 12; }
+    const de = S.t - an.evo, evolving = de >= 0 && de < 1.6;
+    if (evolving) { const g = .75 + .25 * Math.min(1, de / 1.3); sx *= g; sy *= g; }
+    ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(x, bottom - 2, w * .38, 7, 0, 0, 7); ctx.fill();
+    ctx.save();
+    ctx.translate(x + lean, bottom - lift); ctx.scale(p.flip[e] ? -sx : sx, sy);
+    if (evolving && Math.sin(de * 22) > -.2 && de < 1.3) ctx.filter = 'brightness(0) invert(1)';   // 하얗게 깜빡임
+    ctx.drawImage(sp.img, -w / 2, -h, w, h);
+    ctx.restore();
+    if (evolving) {   // 빛 고리
+      ctx.strokeStyle = `rgba(255,240,170,${Math.max(0, 1 - de / 1.6)})`; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.arc(x, bottom - h / 2, h * (.5 + de * .6), 0, 7); ctx.stroke();
+    }
+  });
+}
+
 /* 스테이지 명단: 스테이지 번호로 정해지는 고정 명단 (테마의 주 타입에서) */
 const rosterCache = {};
 function stageRoster(s) {
@@ -713,9 +765,19 @@ function setSubmitMode(on) {
   document.getElementById('btnMode').textContent = '입력 방식: ' + (submitWithEnter ? 'Enter로 제출' : '맞는 순간 바로');
   typing.placeholder = submitWithEnter ? '여기에 입력 후 Enter — 띄어쓰기·부호 무시' : '여기에 입력 — 띄어쓰기·부호 무시, 글자만 맞으면 공격';
 }
-typing.addEventListener('compositionstart', () => composing = true);
-typing.addEventListener('compositionend', () => { composing = false; onType(); });
-typing.addEventListener('input', onType);
+function bindTyping(el) {
+  el.addEventListener('compositionstart', () => composing = true);
+  el.addEventListener('compositionend', () => { composing = false; onType(); });
+  el.addEventListener('input', onType);
+}
+bindTyping(typing);
+/* 입력창을 새 것으로 바꿔 입력기(IME)가 기억하던 조합 상태를 끊음
+   — 조합 중에 상점 등이 열리면 돌아온 뒤 첫 글자가 지워지는 문제 방지 */
+function freshTyping() {
+  const el = typing.cloneNode(false); el.value = '';
+  typing.replaceWith(el); typing = el; bindTyping(el);
+  composing = false; clearing = false; residue = ''; S.typoFlag = false;
+}
 
 function aliveTexts() { return S.monsters.filter(m => !m.dead).map(m => key(m.text)); }
 function ownedItems() { return Object.keys(ITEMS).filter(n => (prog.inv[n] || 0) > 0); }
@@ -758,7 +820,12 @@ function tryHit(cands) {
   for (const v of cands) {
     if (!v || aliveTexts().some(t => t.startsWith(v))) continue;
     if (ITEMS[v] && (prog.inv[v] || 0) > 0) { useItem(v); clearInput(v); return true; }
-    if (COMMANDS.includes(v)) { clearInput(v); runCommand(v); return true; }
+    if (COMMANDS.includes(v)) {
+      clearInput(v);
+      if (['상점', '업적', '환생'].includes(v)) setTimeout(() => { if (S.mode === 'play') { typing.value = ''; runCommand(v); } }, 120);
+      else runCommand(v);
+      return true;
+    }
   }
   return false;
 }
@@ -818,10 +885,16 @@ function typedHit(m) {
   let crit = false;
   if (S.sureCrit > 0) { S.sureCrit--; crit = true; } else crit = Math.random() < upVal('crit');
   const dmg = atkPower() * n * (crit ? upVal('cdmg') : 1) * comboMult() * (S.t < S.focusUntil ? 2 : 1);
-  const AR = archers();
-  const a = AR.reduce((p, q) => Math.abs(q[1] - m.y) < Math.abs(p[1] - m.y) ? q : p);
-  const ac = tier >= 0 ? CONFIG.combo[tier].col : '255,230,160';
-  S.fx.push({ k: 'arrow', x0: a[0] + 28, y0: a[1] - 4, x1: m.x, y1: m.y - R[m.type] * .4, t: 0, d: .18, c: ac, w: 3 + Math.max(0, tier) });
+  if (partnersReady()) {
+    let pi = 0; PARTNER_POS.forEach((q, i) => { if (Math.abs(q[1] - m.y) < Math.abs(PARTNER_POS[pi][1] - m.y)) pi = i; });
+    const q = PARTNER_POS[pi]; partnerAnim[pi].atk = S.t;
+    S.fx.push({ k: 'arrow', x0: q[0] + 40, y0: q[1] - 10, x1: m.x, y1: m.y - R[m.type] * .4, t: 0, d: .2, c: PARTNERS[pi].col, w: 4 + Math.max(0, tier), orb: 7 + 2 * Math.max(0, tier) });
+  } else {
+    const AR = archers();
+    const a = AR.reduce((p, q) => Math.abs(q[1] - m.y) < Math.abs(p[1] - m.y) ? q : p);
+    const ac = tier >= 0 ? CONFIG.combo[tier].col : '255,230,160';
+    S.fx.push({ k: 'arrow', x0: a[0] + 28, y0: a[1] - 4, x1: m.x, y1: m.y - R[m.type] * .4, t: 0, d: .18, c: ac, w: 3 + Math.max(0, tier) });
+  }
   m.hp -= dmg; m.hitFlash = .15;
   S.floaters.push({ x: m.x + (Math.random() * 30 - 15), y: m.y - R[m.type] * 2.2, text: (crit ? '치명타! ' : '') + fmt(dmg), t: 0, crit });
   if (crit) { S.shakeUntil = S.t + .22; S.shakeMag = m.type === 'boss' ? 9 : 6; S.fx.push({ k: 'ring', x: m.x, y: m.y, t: 0, d: .3, r: R[m.type] * 2.6 }); play('crit'); }
@@ -1124,6 +1197,7 @@ function drawWall() {
   for (let i = 0; i < Math.floor(dmg * 10); i++) {
     const y = 160 + i * 52; ctx.beginPath(); ctx.moveTo(WALL_X - 40, y); ctx.lineTo(WALL_X - 24, y + 14); ctx.lineTo(WALL_X - 34, y + 30); ctx.lineTo(WALL_X - 12, y + 40); ctx.stroke();
   }
+  if (partnersReady()) { drawPartners(); return; }
   for (const [x, y] of archers()) {
     ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(x, y + 34, 22, 6, 0, 0, 7); ctx.fill();
     if (IMG.archer) { ctx.drawImage(IMG.archer, x - 42, y + 38 - 84, 84, 84); continue; }
@@ -1218,6 +1292,12 @@ function drawFx() {
       ctx.strokeStyle = `rgba(${f.c || '255,230,160'},${1 - p})`; ctx.lineWidth = f.w || 3; ctx.beginPath();
       ctx.moveTo(f.x0 + (f.x1 - f.x0) * Math.max(0, p - .3), f.y0 + (f.y1 - f.y0) * Math.max(0, p - .3));
       ctx.lineTo(f.x0 + (f.x1 - f.x0) * Math.min(1, p * 1.6), f.y0 + (f.y1 - f.y0) * Math.min(1, p * 1.6)); ctx.stroke();
+      if (f.orb && p < .65) {
+        const q = Math.min(1, p * 1.6), hx = f.x0 + (f.x1 - f.x0) * q, hy = f.y0 + (f.y1 - f.y0) * q;
+        const gr = ctx.createRadialGradient(hx, hy, 0, hx, hy, f.orb * 1.8);
+        gr.addColorStop(0, 'rgba(255,255,255,.95)'); gr.addColorStop(.4, `rgba(${f.c},.9)`); gr.addColorStop(1, `rgba(${f.c},0)`);
+        ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(hx, hy, f.orb * 1.8, 0, 7); ctx.fill();
+      }
     } else if (f.k === 'boom') {
       ctx.fillStyle = `rgba(${f.c},${.6 * (1 - p)})`; ctx.beginPath(); ctx.arc(f.x, f.y, f.r * (.4 + p * .6), 0, 7); ctx.fill();
       for (let i = 0; i < 8; i++) { const a = i / 8 * 6.28 + f.x; ctx.fillStyle = `rgba(${f.c},${1 - p})`; ctx.fillRect(f.x + Math.cos(a) * f.r * p, f.y + Math.sin(a) * f.r * p, 5, 5); }
@@ -1462,9 +1542,10 @@ function buyUp(i) {
   const u = CONFIG.upgrades[k], L = prog.up[k];
   if (u.max !== undefined && L >= u.max) return;
   const cost = u.cost(L); if (prog.gold < cost) return;
-  const before = wallMax();
+  const before = wallMax(), evo0 = evoStage();
   prog.gold -= cost; prog.up[k]++;
   if (k === 'wall') S.wall += wallMax() - before;
+  if (evoStage() > evo0) triggerEvolve();
   saveProg(); renderShop();
 }
 function updateAutoUI() {
@@ -1480,7 +1561,7 @@ const OV = { title: 'ovTitle', shop: 'ovShop', pause: 'ovPause', manage: 'ovMana
 function setMode(m) {
   S.mode = m;
   for (const k in OV) document.getElementById(OV[k]).hidden = (k !== m);
-  if (m === 'play') { typing.disabled = false; typing.value = ''; setBad(false); typing.focus(); }
+  if (m === 'play') { freshTyping(); typing.disabled = false; setBad(false); typing.focus(); }
   else { typing.blur(); typing.value = ''; typing.disabled = true; }
   if (m === 'title') renderTitle();
   if (m !== 'play') saveProg();
@@ -1615,6 +1696,7 @@ function loop(now) {
 }
 (async function boot() {
   try { await document.fonts.load('700 20px "Noto Sans KR"'); await document.fonts.load('20px "Do Hyeon"'); } catch (e) {}
+  if (CONFIG.pokemon) PARTNERS.forEach(p => p.line.forEach(pkLoad));
   await loadSentences();
   buildGround();
   setMode('title');
