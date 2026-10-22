@@ -102,6 +102,7 @@ input[type=text].url{width:100%;box-sizing:border-box;background:#1c1823;color:v
           <b>업적 · 소리</b><span>업적 보기 · 효과음 켜기·끄기</span>
           <b>환생</b><span>20스테이지부터, 명예로 영구 강화</span>
           <b>얼음 늪 바람 집중 필살</b><span>보스 상자에서 얻는 소모품</span>
+          <b>질주</b><span>깼던 구간을 2배 속도로 (환생 뒤)</span>
         </div>
         <div class="row">
           <button class="btn main" id="btnStart"><span class="k">Enter</span><span id="startLabel">시작</span></button>
@@ -263,6 +264,13 @@ const CONFIG = {
   honorGold: 0.03,          // 명예 1당 골드 +3%
   achBonus: 0.01,           // 업적 1개당 공격력 +1%
   archerAt: [30, 80],       // 공격력 강화가 이 단계에 이르면 궁수 +1
+  // 질주 모드: 지금 공격력이 '이 스테이지를 처음 깼을 때 공격력'의 overKill배 이상이면
+  //   한 번 칠 때 몬스터 1마리를 더 처치하고, 소환·웨이브 간격이 overSpeed배 빨라짐 (보스전 제외)
+  //   → 환생 뒤 이미 깼던 구간을 빠르게 지나가고, 역대 기록을 넘어서면 원래 속도로
+  overKill: 2,
+  overSpeed: 2,
+  overWaves: 2,             // 질주 중 보스 도전 전에 깨야 하는 웨이브 수 (평소 3)
+  overRule: 'self',         // 'self' 첫 돌파 공격력 대비 / 'hp' 글자당 공격력 vs 일반 몬스터 체력 / 'word' 단어 한 방 vs 체력
   autoRetryWaves: 3,        // 자동 도전: 보스 실패 후 웨이브 몇 개를 더 깨고 재도전할지
   collapseDown: 2,          // 성벽이 연속 몇 번 무너지면 한 스테이지 내려갈지
   cpmWindow: 20,            // 실시간 분당 타수 계산 구간(초)
@@ -404,7 +412,7 @@ const PROG_KEY = 'stenoIdle.v1';             // 진행 상황
 const PROG0 = () => ({
   stage: 1, best: 1, gold: 0, up: { atk: 0, crit: 0, cdmg: 0, wall: 0 }, inv: {}, auto: true, totalChars: 0, totalTime: 0,
   // 환생해도 남는 것
-  record: 1, honor: 0, prestiges: 0, ach: {}, bestCPM: 0, bestCombo: 0, cleanBoss: 0, goldenKills: 0, legends: 0,
+  record: 1, clearAtk: {}, honor: 0, prestiges: 0, ach: {}, bestCPM: 0, bestCombo: 0, cleanBoss: 0, goldenKills: 0, legends: 0,
 });
 let prog = PROG0();
 try { const p = JSON.parse(localStorage.getItem(PROG_KEY) || 'null'); if (p) { prog = Object.assign(PROG0(), p); prog.up = Object.assign(PROG0().up, p.up); prog.record = Math.max(prog.record, prog.best); } } catch (e) {}
@@ -485,6 +493,16 @@ const atkPower = () => upVal('atk') * achMult() * honorDmgMult();     // 글자�
 function comboTier(c = S.combo) { let t = -1; CONFIG.combo.forEach((x, i) => { if (c >= x.n) t = i; }); return t; }
 const comboMult = () => { const t = comboTier(); return 1 + (t >= 0 ? CONFIG.combo[t].bonus : 0); };
 const rushOn = () => S.t < S.rushUntil;
+function clearAtkOf(s) {   // 기록이 없으면 그 아래에서 가장 가까운 기록으로 대신
+  for (let k = s; k >= 1; k--) if (prog.clearAtk[k]) return prog.clearAtk[k];
+  return 0;
+}
+const overNeed = () => CONFIG.overRule === 'self'
+  ? (prog.stage < prog.record && clearAtkOf(prog.stage) ? CONFIG.overKill * clearAtkOf(prog.stage) : Infinity)
+  : CONFIG.overKill * hpOf('normal', prog.stage) / (CONFIG.overRule === 'word' ? 3 : 1);
+const overOn = () => CONFIG.overKill > 0 && !S.inBoss && atkPower() >= overNeed();
+const overGap = () => overOn() ? 1 / CONFIG.overSpeed : 1;
+const wavesNeed = () => overOn() ? Math.min(CONFIG.waves, CONFIG.overWaves) : CONFIG.waves;
 
 /* =====================================================================
    캔버스·전장
@@ -541,7 +559,7 @@ function startWave() {
   const pe = Math.min(CONFIG.eliteBase + CONFIG.elitePerStage * (s - 1), CONFIG.eliteMax);
   S.monsters = []; S.queue = []; S.waveT = 0; S.gap = 0; S.inBoss = false;
   let t = 0.6;
-  for (let i = 0; i < CONFIG.perWave; i++) { S.queue.push({ t, type: Math.random() < pe ? 'elite' : 'normal' }); t += CONFIG.spawnGap * (0.8 + Math.random() * 0.4); }
+  for (let i = 0; i < CONFIG.perWave; i++) { S.queue.push({ t, type: Math.random() < pe ? 'elite' : 'normal' }); t += CONFIG.spawnGap * overGap() * (0.8 + Math.random() * 0.4); }
   if (Math.random() < CONFIG.goldenChance) {   // 황금 몬스터: 웨이브 중간 아무 때나
     S.queue.push({ t: 1 + Math.random() * t, type: 'normal', golden: true });
     S.queue.sort((a, b) => a.t - b.t);
@@ -725,9 +743,19 @@ function typedHit(m) {
   m.hp -= dmg; m.hitFlash = .15;
   S.floaters.push({ x: m.x + (Math.random() * 30 - 15), y: m.y - R[m.type] * 2.2, text: (crit ? '치명타! ' : '') + fmt(dmg), t: 0, crit });
   if (crit) { S.shakeUntil = S.t + .22; S.shakeMag = m.type === 'boss' ? 9 : 6; S.fx.push({ k: 'ring', x: m.x, y: m.y, t: 0, d: .3, r: R[m.type] * 2.6 }); play('crit'); }
-  if (m.hp <= 0) kill(m);
+  if (m.hp <= 0) { kill(m); if (m.type !== 'boss') chainKill(m); }
   else { if (!crit) play('hit'); m.text = m.type === 'boss' ? m.feed() : pickText(m.type, m); }
   clearInput(text);
+}
+/* 질주 모드: 한 마리를 더 처치 */
+function chainKill(from) {
+  if (!overOn()) return;
+  const others = S.monsters.filter(o => !o.dead && o !== from && o.type !== 'boss' && o.x < W);
+  if (!others.length) return;
+  const o = pick(others);
+  S.fx.push({ k: 'arrow', x0: from.x, y0: from.y - R[from.type] * .4, x1: o.x, y1: o.y - R[o.type] * .4, t: 0, d: .2, c: '255,150,90', w: 4 });
+  S.floaters.push({ x: o.x, y: o.y - R[o.type] * 2.2, text: '연쇄!', t: 0, crit: true });
+  o.hp = 0; kill(o);
 }
 function addGold(g, x, y) {
   g *= honorGoldMult() * (rushOn() ? CONFIG.rushMult : 1);
@@ -757,6 +785,7 @@ function rollChest() {
 }
 function bossWin(m) {
   const s = prog.stage;
+  if (!prog.clearAtk[s]) prog.clearAtk[s] = +atkPower().toPrecision(4);   // 질주 모드 기준값
   // 보상 상자
   const ci = rollChest(), c = CONFIG.chests[ci], got = [];
   if (Math.random() < c.item) for (let k = 0; k < c.n; k++) {
@@ -811,7 +840,7 @@ function runCommand(c) {
   if (c === '보스') {
     if (S.inBoss) { notice('이미 보스전 중이에요', '169,159,180'); return; }
     if (S.pendingStage) return;
-    if (!S.bossReady) { notice(`웨이브 ${CONFIG.waves - S.waveNo}개를 더 깨야 도전할 수 있어요`, '169,159,180'); return; }
+    if (!S.bossReady) { notice(`웨이브 ${wavesNeed() - S.waveNo}개를 더 깨야 도전할 수 있어요`, '169,159,180'); return; }
     startBoss(); return;
   }
   if (c === '이전') {
@@ -906,7 +935,7 @@ function update(dt) {
   if (S.gap > 0) {
     S.gap -= dt;
     if (S.gap <= 0) {
-      if (prog.auto && prog.stage < prog.best && S.waveNo >= CONFIG.waves) enterStage(prog.stage + 1, `자동: 스테이지 ${prog.stage + 1}로 복귀`);
+      if (prog.auto && prog.stage < prog.best && S.waveNo >= wavesNeed()) enterStage(prog.stage + 1, `자동: 스테이지 ${prog.stage + 1}로 복귀`);
       else if (S.bossReady && prog.auto && !S.inBoss && (!S.bossFailed || S.sinceFail >= CONFIG.autoRetryWaves) && prog.stage >= prog.best) startBoss();
       else startWave();
     }
@@ -940,17 +969,19 @@ function update(dt) {
   if (!S.inBoss && S.gap <= 0 && !S.queue.length && !S.monsters.length) {
     S.collapseStreak = 0;
     if (S.waveNo < CONFIG.waves) S.waveNo++;
-    if (S.bossReady || S.waveNo >= CONFIG.waves) {
+    if (S.bossReady || S.waveNo >= wavesNeed()) {
       if (!S.bossReady) { S.bossReady = true; if (!prog.auto) banner("보스 도전 가능 · '보스'를 입력하세요"); }
       if (S.bossFailed) S.sinceFail++;
     }
-    S.gap = CONFIG.waveGap;
+    S.gap = CONFIG.waveGap * overGap();
   }
 
   for (const f of S.fx) f.t += dt;
   if (S.comboPop) { S.comboPop.t += dt; if (S.comboPop.t > 1.6) S.comboPop = null; }
   if (S.toasts.length) { S.toasts[0].t += dt; if (S.toasts[0].t > 3) S.toasts.shift(); }
-  S.achT += dt; if (S.achT > 1) { S.achT = 0; checkAch(); checkRecord(); }
+  S.achT += dt; if (S.achT > 1) { S.achT = 0; checkAch(); checkRecord();
+    const ov = CONFIG.overKill > 0 && atkPower() >= overNeed();
+    if (ov !== S.overWas) { if (ov && S.overWas !== undefined) { banner('질주 모드! 2마리씩 처치 · 소환 2배', '255,150,90'); play('rush'); } else if (!ov && S.overWas) notice('질주 모드 끝 · 여기부터 실력 승부', '255,150,90'); } S.overWas = ov; }
   S.fx = S.fx.filter(f => f.t < f.d);
   for (const f of S.floaters) f.t += dt;
   S.floaters = S.floaters.filter(f => f.t < (f.big ? 1.6 : 1));
@@ -1182,8 +1213,8 @@ function drawHUD() {
   // 진행 상태
   let status;
   if (S.inBoss) status = '보스전';
-  else if (S.bossReady) status = prog.stage < prog.best ? (prog.auto ? `복귀까지 웨이브 ${Math.max(0, CONFIG.waves - S.waveNo)}` : "'다음'으로 이동 가능") : (prog.auto ? (S.bossFailed ? `재도전까지 웨이브 ${Math.max(0, CONFIG.autoRetryWaves - S.sinceFail)}` : '곧 보스 도전') : "'보스' 입력으로 도전");
-  else status = `웨이브 ${Math.min(S.waveNo + 1, CONFIG.waves)}/${CONFIG.waves}`;
+  else if (S.bossReady) status = prog.stage < prog.best ? (prog.auto ? `복귀까지 웨이브 ${Math.max(0, wavesNeed() - S.waveNo)}` : "'다음'으로 이동 가능") : (prog.auto ? (S.bossFailed ? `재도전까지 웨이브 ${Math.max(0, CONFIG.autoRetryWaves - S.sinceFail)}` : '곧 보스 도전') : "'보스' 입력으로 도전");
+  else status = `웨이브 ${Math.min(S.waveNo + 1, wavesNeed())}/${wavesNeed()}`;
   ctx.font = '700 14px "Noto Sans KR", sans-serif'; ctx.fillStyle = '#a99fb4';
   ctx.fillText(`${ground.theme} · ${status}`, 32 + tw, 25);
   ctx.fillText(`최고 ${prog.best}${prog.honor ? ` · 명예 ${prog.honor}` : ''}`, 32 + tw, 44);
@@ -1245,6 +1276,7 @@ function drawHUD() {
   if (S.t < S.focusUntil) eff.push(`집중 ${Math.ceil(S.focusUntil - S.t)}초`);
   if (S.sureCrit > 0) eff.push(`필살 ${S.sureCrit}회`);
   if (rushOn()) eff.push(`골드 러시 ${Math.ceil(S.rushUntil - S.t)}초`);
+  if (overOn()) eff.push(`질주: 한 번에 2마리 · 소환 ×${CONFIG.overSpeed}`);
   const ey = boss ? 120 : 76;
   eff.forEach((t, i) => { ctx.font = '700 13px "Noto Sans KR", sans-serif'; const w = ctx.measureText(t).width + 18;
     ctx.fillStyle = 'rgba(14,11,19,.78)'; roundRect(WALL_X + 20, ey + i * 30, w, 24, 5); ctx.fill(); ctx.fillStyle = '#7cc6e8'; ctx.fillText(t, WALL_X + 29, ey + 13 + i * 30); });
@@ -1332,6 +1364,8 @@ function renderShop() {
   updateAutoUI();
   const owned = Object.keys(ITEMS).filter(n => prog.inv[n]).map(n => `${n} ×${prog.inv[n]}`);
   document.getElementById('ownedList').innerHTML = (owned.length ? '보유 소모품: ' + owned.join(' · ') : '보유 소모품 없음')
+    + `<br>질주 모드: 공격력이 이 스테이지를 처음 깼을 때의 ${CONFIG.overKill}배 이상이면 한 번에 2마리 처치·소환 ${CONFIG.overSpeed}배 `
+    + (isFinite(overNeed()) ? `(지금 ${fmt(atkPower())} / 필요 ${fmt(overNeed())})` : '(역대 기록 아래 스테이지에서만)')
     + `<br>소모품은 보스 보상 상자에서 얻습니다 (일반 ${Math.round(CONFIG.chests[0].p * 100)}% · 희귀 ${Math.round(CONFIG.chests[1].p * 100)}% · 전설 ${Math.round(CONFIG.chests[2].p * 100)}%, 종류별 최대 ${CONFIG.itemMax}개).`;
 }
 function buyUp(i) {
