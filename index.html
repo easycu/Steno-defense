@@ -267,6 +267,10 @@ const CONFIG = {
   // 질주 모드: 지금 공격력이 '이 스테이지를 처음 깼을 때 공격력'의 overKill배 이상이면
   //   한 번 칠 때 몬스터 1마리를 더 처치하고, 소환·웨이브 간격이 overSpeed배 빨라짐 (보스전 제외)
   //   → 환생 뒤 이미 깼던 구간을 빠르게 지나가고, 역대 기록을 넘어서면 원래 속도로
+  // 포켓몬 몬스터: 공식 일러스트를 인터넷(PokeAPI)에서 불러옴. false면 assets 그림만 사용
+  pokemon: true,
+  pokeRoster: { normal: 6, elite: 3 },     // 스테이지마다 나오는 종류 수 (같은 스테이지엔 늘 같은 명단)
+  pokeHeight: { normal: 76, elite: 104, boss: 176 },   // 화면에 그리는 높이(px) — 크기로 등급 구분
   overKill: 2,
   overSpeed: 2,
   overWaves: 2,             // 질주 중 보스 도전 전에 깨야 하는 웨이브 수 (평소 3)
@@ -519,6 +523,80 @@ const typing = document.getElementById('typing');
 const IMG = {};
 for (const n of ['normal', 'elite', 'boss', 'archer']) { const im = new Image(); im.onload = () => IMG[n] = im; im.src = `assets/${n}.png`; }
 const SPRITE = 3.2;
+
+/* =====================================================================
+   포켓몬 몬스터 — 테마(주 타입) × 등급(진화 단계)별 도감 번호
+   일반 = 진화 전 기본형 · 정예 = 진화형 · 보스 = 전설·환상
+   테마: 초원(노말·벌레·풀·페어리) 사막(격투·땅·바위·강철) 설원(비행·물·얼음)
+         화산(불꽃·전기·드래곤) 어둠(독·고스트·에스퍼·악)
+   ===================================================================== */
+const POKE_POOLS = [[[1,10,13,16,19,21,43,46,48,52,69,83,84,102,108,114,115,123,127,128,132,133,137,152,161,163,165,167,173,174,175,187,190,191,193,203,204,206,209,213,214,216,234,235,241,252,263,265,273,276,283,285,287,290,293,298,300,313,314,327,331,333,335,351,352,357,387,396,399,401,406,412,415,420,427,431,440,441,446,455,459,495,504,506,511,519,531,540,543,546,548,556,557,572,585,588,590,595,597,616,626,627,632,636,650,659,661,664,669,672,676,682,684,722,731,734,736,742,753,755,759,761,764,765,767,775,780,794,795,798,810,819,824,829,831,840,868,906,915,917,919,924,926,928,931,946,951,953,957,985,986,988,1006,1010,1012],[2,3,11,12,14,15,17,18,20,22,35,36,39,40,44,45,47,49,53,70,71,85,103,113,143,153,154,162,164,166,168,176,182,188,189,192,205,210,212,217,233,242,253,254,264,266,267,268,269,274,275,277,284,286,288,289,291,292,294,295,301,315,332,388,389,397,398,400,402,407,413,414,416,421,424,428,432,460,463,465,468,469,470,474,496,497,505,507,508,512,520,521,541,542,544,545,547,549,558,573,586,589,591,596,598,617,628,637,651,652,660,665,666,670,671,673,683,685,700,723,724,732,733,735,737,738,743,754,756,760,762,763,768,811,812,820,825,826,830,832,841,842,869,899,900,907,908,916,918,920,925,927,929,930,947,952,954,958,959,981,982,1011,1013,1019],[486,492,493,640,648,649,716,772,773,787,888,905,1017,1024]],[[27,50,56,66,74,95,104,111,138,140,142,207,227,231,236,246,296,299,303,304,307,328,337,338,343,345,347,374,408,410,436,438,447,449,524,529,532,538,539,551,566,599,618,619,622,674,679,688,696,698,701,703,707,739,744,749,766,774,793,797,805,837,843,852,870,874,878,884,932,948,950,965,968,969,984,990,992,995,1022,1023],[28,51,57,67,68,75,76,105,106,107,112,139,141,185,208,232,237,247,248,297,305,306,308,329,330,344,346,348,375,376,409,411,437,448,450,464,472,476,525,526,530,533,534,552,553,567,600,601,620,623,675,680,681,689,697,699,740,745,750,838,839,844,853,863,865,867,879,901,903,933,934,949,966,970,979,1000,1018],[377,379,383,385,483,638,639,645,719,801,802,808,809,889,891,892,1007]],[[7,54,60,72,79,86,90,98,116,118,120,129,131,158,170,194,211,220,222,223,225,238,258,270,278,318,320,339,341,349,361,363,366,369,370,393,418,422,456,458,501,515,535,550,564,580,582,592,594,613,615,656,692,712,714,728,746,751,771,779,816,821,833,845,846,872,875,882,883,912,960,962,963,973,974,976,977,991,1009],[8,9,55,61,62,73,80,87,91,99,117,119,121,124,130,134,159,160,171,183,184,186,195,199,221,224,226,230,259,260,271,272,279,319,321,340,342,350,362,364,365,367,368,394,395,419,423,457,471,473,478,502,503,516,536,537,565,581,583,584,593,614,657,658,693,713,715,729,730,752,817,818,822,823,834,847,866,873,902,913,914,961,964,975],[144,245,378,382,484,489,490,641,647,788,896]],[[4,37,58,77,81,100,147,155,172,179,218,239,240,255,309,311,312,322,324,371,390,403,417,443,479,498,513,522,554,587,602,610,621,631,653,667,694,702,704,725,741,776,777,782,796,806,813,835,848,850,871,877,880,881,885,909,921,935,938,940,967,978,989,994,996,1005,1020,1021],[5,6,25,26,38,59,78,82,101,125,126,135,136,148,149,156,157,180,181,219,256,257,310,323,334,372,373,391,392,404,405,444,445,462,466,467,499,500,514,523,555,603,604,611,612,654,655,662,663,668,695,705,706,726,727,783,784,814,815,836,849,851,886,887,910,911,922,923,936,937,939,941,997,998],[145,146,243,244,250,380,381,384,485,642,643,644,646,718,721,785,807,894,895,1008]],[[23,29,32,41,63,88,92,96,109,177,198,200,201,215,228,261,280,302,316,325,336,353,355,359,360,425,433,434,439,442,451,453,509,517,527,559,561,562,568,570,574,577,605,607,624,629,633,677,686,690,708,710,747,757,769,778,781,799,803,827,854,856,859,876,942,944,955,971,987,993,999],[24,30,31,33,34,42,64,65,89,93,94,97,110,122,169,178,196,197,202,229,262,281,282,317,326,354,356,358,426,429,430,435,452,454,461,475,477,510,518,528,560,563,569,571,575,576,578,579,606,608,609,625,630,634,635,678,687,691,709,711,748,758,770,804,828,855,857,858,860,861,862,864,904,943,945,956,972,980,983],[150,151,249,251,386,480,481,482,487,488,491,494,717,720,786,789,790,791,792,800,890,893,897,898,1001,1002,1003,1004,1014,1015,1016,1025]]];
+const POKE_NAMES = {"144":"프리져","145":"썬더","146":"파이어","150":"뮤츠","151":"뮤","243":"라이코","244":"앤테이","245":"스이쿤","249":"루기아","250":"칠색조","251":"세레비","377":"레지락","378":"레지아이스","379":"레지스틸","380":"라티아스","381":"라티오스","382":"가이오가","383":"그란돈","384":"레쿠쟈","385":"지라치","386":"테오키스","480":"유크시","481":"엠라이트","482":"아그놈","483":"디아루가","484":"펄기아","485":"히드런","486":"레지기가스","487":"기라티나","488":"크레세리아","489":"피오네","490":"마나피","491":"다크라이","492":"쉐이미","493":"아르세우스","494":"비크티니","638":"코바르온","639":"테라키온","640":"비리디온","641":"토네로스","642":"볼트로스","643":"레시라무","644":"제크로무","645":"랜드로스","646":"큐레무","647":"케르디오","648":"메로엣타","649":"게노세크트","716":"제르네아스","717":"이벨타르","718":"지가르데","719":"디안시","720":"후파","721":"볼케니온","772":"타입:널","773":"실버디","785":"카푸꼬꼬꼭","786":"카푸나비나","787":"카푸브루루","788":"카푸느지느","789":"코스모그","790":"코스모움","791":"솔가레오","792":"루나아라","800":"네크로즈마","801":"마기아나","802":"마샤도","807":"제라오라","808":"멜탄","809":"멜메탈","888":"자시안","889":"자마젠타","890":"무한다이노","891":"치고마","892":"우라오스","893":"자루도","894":"레지에레키","895":"레지드래고","896":"블리자포스","897":"레이스포스","898":"버드렉스","905":"러브로스","1001":"총지엔","1002":"파오젠","1003":"딩루","1004":"위유이","1007":"코라이돈","1008":"미라이돈","1014":"조타구","1015":"이야후","1016":"기로치","1017":"오거폰","1024":"테라파고스","1025":"복숭악동"};
+const PK = new Map();   // 번호 → 'loading' | 'fail' | { img, w, h, out: {등급별 테두리 그림} }
+const PK_URL = id => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
+function pkLoad(id) {
+  if (!CONFIG.pokemon || !id || PK.has(id)) return;
+  PK.set(id, 'loading');
+  const im = new Image(); im.crossOrigin = 'anonymous';
+  im.onload = () => { let sp = null; try { sp = trimSprite(im); } catch (e) {} PK.set(id, sp || { img: im, w: im.width, h: im.height, out: {} }); };
+  im.onerror = () => PK.set(id, 'fail');
+  im.src = PK_URL(id);
+  if (PK.size > 140) for (const [k, v] of PK) { if (v !== 'loading' && !S.monsters.some(m => m.pid === k)) { PK.delete(k); break; } }
+}
+/* 투명 여백을 잘라내 발이 땅에 닿게 */
+function trimSprite(im) {
+  const N = 256, c = document.createElement('canvas'); c.width = c.height = N;
+  const g = c.getContext('2d'); g.drawImage(im, 0, 0, N, N);
+  const d = g.getImageData(0, 0, N, N).data;
+  let x0 = N, y0 = N, x1 = -1, y1 = -1;
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) if (d[(y * N + x) * 4 + 3] > 20) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+  if (x1 < 0) return null;
+  const w = x1 - x0 + 1, h = y1 - y0 + 1, o = document.createElement('canvas'); o.width = w; o.height = h;
+  o.getContext('2d').drawImage(c, x0, y0, w, h, 0, 0, w, h);
+  return { img: o, w, h, out: {} };
+}
+/* 정예·보스는 색 테두리를 둘러서 한 번만 만들어 둠 */
+const OUTLINE = { elite: '#b58ae8', boss: '#ff5a3c' };
+function outlined(sp, type) {
+  if (!OUTLINE[type]) return sp.img;
+  if (sp.out[type]) return sp.out[type];
+  const p = 4, c = document.createElement('canvas'); c.width = sp.w + p * 2; c.height = sp.h + p * 2;
+  const s = document.createElement('canvas'); s.width = sp.w; s.height = sp.h;
+  const sg = s.getContext('2d'); sg.drawImage(sp.img, 0, 0); sg.globalCompositeOperation = 'source-in'; sg.fillStyle = OUTLINE[type]; sg.fillRect(0, 0, sp.w, sp.h);
+  const g = c.getContext('2d');
+  for (let a = 0; a < 16; a++) g.drawImage(s, p + Math.cos(a / 8 * Math.PI) * 3, p + Math.sin(a / 8 * Math.PI) * 3);
+  g.drawImage(sp.img, p, p);
+  return (sp.out[type] = c);
+}
+/* 스테이지 명단: 스테이지 번호로 정해지는 고정 명단 (테마의 주 타입에서) */
+const rosterCache = {};
+function stageRoster(s) {
+  if (rosterCache[s]) return rosterCache[s];
+  const pools = POKE_POOLS[Math.floor((s - 1) / 4) % POKE_POOLS.length];
+  let seed = s * 7919 + 13; const rr = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const take = (arr, n) => { const a = [...arr], out = []; while (out.length < n && a.length) out.push(a.splice(Math.floor(rr() * a.length), 1)[0]); return out; };
+  return (rosterCache[s] = { normal: take(pools[0], CONFIG.pokeRoster.normal), elite: take(pools[1], CONFIG.pokeRoster.elite), boss: take(pools[2], 1)[0] });
+}
+function pkPick(type) {
+  if (!CONFIG.pokemon) return 0;
+  const R0 = stageRoster(prog.stage);
+  if (type === 'boss') return R0.boss;
+  const list = R0[type], used = new Set(S.monsters.filter(m => !m.dead).map(m => m.pid));
+  const free = list.filter(id => !used.has(id));
+  return pick(free.length ? free : list);
+}
+/* 그릴 그림과 크기 (포켓몬이 아직 안 불러졌으면 assets 그림) */
+function monsterSprite(m) {
+  const sp = m.pid && PK.get(m.pid);
+  if (sp && typeof sp === 'object') {
+    let h = CONFIG.pokeHeight[m.type], w = h * sp.w / sp.h;
+    if (w > h * 1.5) { h *= h * 1.5 / w; w = CONFIG.pokeHeight[m.type] * 1.5; }
+    const img = outlined(sp, m.type), k = h / sp.h;
+    return { img, w: img.width * k, h: img.height * k, pad: (img.height - sp.h) / 2 * k };
+  }
+  const im = IMG[m.type]; if (!im) return null;
+  const sz = R[m.type] * SPRITE; return { img: im, w: sz, h: sz, pad: 0 };
+}
 const ARCHER_POS = [[92, 205], [66, 305], [100, 405], [70, 505], [96, 125]];
 const archers = () => ARCHER_POS.slice(0, 3 + CONFIG.archerAt.filter(l => prog.up.atk >= l).length);
 
@@ -564,6 +642,10 @@ function startWave() {
     S.queue.push({ t: 1 + Math.random() * t, type: 'normal', golden: true });
     S.queue.sort((a, b) => a.t - b.t);
   }
+  if (CONFIG.pokemon) {   // 이번 스테이지 명단 미리 불러오기
+    const R0 = stageRoster(s); [...R0.normal, ...R0.elite, R0.boss].forEach(pkLoad);
+    if (s + 1 <= prog.best + 1) { const R1 = stageRoster(s + 1); [...R1.normal, ...R1.elite, R1.boss].forEach(pkLoad); }
+  }
   if (!rushOn() && Math.random() < CONFIG.rushChance) {
     S.rushUntil = S.t + CONFIG.rushTime;
     banner(`골드 러시! ${CONFIG.rushTime}초 동안 골드 ×${CONFIG.rushMult}`, '255,214,90'); play('rush');
@@ -577,7 +659,7 @@ function startBoss() {
   const hp = hpOf('boss', prog.stage);
   S.monsters.push({
     type: 'boss', lane, x: SPAWN_X, y: LANES[lane], stopX, speed: (SPAWN_X - stopX) / CONFIG.bossTime,
-    hp, maxHp: hp, text: feed(), feed, attached: false, dead: false, seed: Math.random() * 10, hitFlash: 0,
+    hp, maxHp: hp, text: feed(), feed, attached: false, dead: false, seed: Math.random() * 10, hitFlash: 0, pid: pkPick('boss'),
   });
   banner(`보스 등장 · ${CONFIG.bossTime}초 안에 쓰러뜨리세요`, '224,97,58');
 }
@@ -613,7 +695,7 @@ function spawn(type, golden) {
   S.monsters.push({
     type, golden: !!golden, lane, x: SPAWN_X, y: LANES[lane] + (Math.random() * 10 - 5),
     speed: (SPAWN_X - stopX) / (golden ? CONFIG.goldenTime : CONFIG.walkTime[type]), stopX, hp, maxHp: hp, text,
-    attached: false, dead: false, seed: Math.random() * 10, hitFlash: 0,
+    attached: false, dead: false, seed: Math.random() * 10, hitFlash: 0, pid: pkPick(type),
   });
   if (golden) { notice('황금 몬스터 출현! 놓치지 마세요', '255,214,90'); play('golden'); }
   return true;
@@ -1059,16 +1141,18 @@ function drawMonster(m) {
   const x = m.x + lunge;
   const bottom = m.y + r * .95;
   ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(m.x, bottom, r * 1.2, r * .3, 0, 0, 7); ctx.fill();
-  const im = IMG[m.type];
+  const spr = monsterSprite(m);
   const sq = frozen ? 0 : Math.sin(S.t * 9 + m.seed) * .05;
-  if (im) {
-    const sz = r * SPRITE, w = sz * (1 + sq), h = sz * (1 - sq);
+  if (spr) {
+    const im = spr.img, w = spr.w * (1 + sq), h = spr.h * (1 - sq);
+    m.drawTop = bottom - spr.h + spr.pad;
     ctx.save();
     if (m.hitFlash > 0) ctx.filter = 'brightness(2.2)';
     else if (m.golden) ctx.filter = 'sepia(1) saturate(5) hue-rotate(-12deg) brightness(1.25)';
     else if (frozen) ctx.filter = 'saturate(.35) brightness(1.15) hue-rotate(150deg)';
-    ctx.drawImage(im, x - w / 2, bottom - h, w, h);
+    ctx.drawImage(im, x - w / 2, bottom - h + spr.pad, w, h);
     ctx.restore();
+    if (m.type === 'boss' && m.pid) drawCrown(x, m.drawTop - 6);
     if (m.golden) for (let i = 0; i < 5; i++) {   // 반짝이
       const a = S.t * 3 + i * 1.26, rr = r * (1.1 + .25 * Math.sin(S.t * 5 + i));
       const sx = x + Math.cos(a) * rr, sy = bottom - r * 1.3 + Math.sin(a) * rr * .8, z = 3 + 2 * Math.abs(Math.sin(S.t * 8 + i));
@@ -1087,6 +1171,11 @@ function drawMonster(m) {
   ctx.fillRect(m.x - bw / 2, by, bw * Math.max(0, m.hp / m.maxHp), 6);
 }
 
+function drawCrown(x, y) {
+  ctx.fillStyle = '#ffd65a'; ctx.strokeStyle = '#8a5a12'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(x - 20, y); ctx.lineTo(x - 22, y - 18); ctx.lineTo(x - 10, y - 8); ctx.lineTo(x, y - 22); ctx.lineTo(x + 10, y - 8); ctx.lineTo(x + 22, y - 18); ctx.lineTo(x + 20, y); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#e0613a'; ctx.beginPath(); ctx.arc(x, y - 6, 3, 0, 7); ctx.fill();
+}
 function wrapText(text, maxW) {
   const words = text.split(' '), lines = []; let cur = '';
   for (const w of words) { const t = cur ? cur + ' ' + w : w; if (ctx.measureText(t).width > maxW && cur) { lines.push(cur); cur = w; } else cur = t; }
@@ -1101,7 +1190,7 @@ function drawLabel(m, typed) {
   const w = Math.max(...lines.map(l => ctx.measureText(l).width)) + 20;
   const h = lines.length * lh + 8;
   let bx = m.x - w / 2; bx = Math.max(WALL_X + 18, Math.min(W - w - 8, bx));
-  const top = IMG[m.type] ? m.y + R[m.type] * .95 - R[m.type] * SPRITE * .96 : m.y - R[m.type] - 6;
+  const top = m.drawTop !== undefined ? m.drawTop - (m.type === 'boss' && m.pid ? 26 : 0) : m.y - R[m.type] - 6;
   const by = Math.max(70, top - 8 - h);
   const match = typed && key(text).startsWith(typed);
   ctx.fillStyle = match ? 'rgba(40,26,8,.92)' : 'rgba(20,16,26,.84)';
@@ -1252,7 +1341,7 @@ function drawHUD() {
     ctx.fillStyle = '#3a2028'; ctx.fillRect(x, y, w, 26);
     ctx.fillStyle = '#e0613a'; ctx.fillRect(x, y, w * Math.max(0, boss.hp / boss.maxHp), 26);
     ctx.fillStyle = '#fff'; ctx.font = '700 14px "Noto Sans KR", sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText(`보스 ${fmt(Math.max(0, boss.hp))} / ${fmt(boss.maxHp)}`, x + w / 2, y + 14);
+    ctx.fillText(`보스${POKE_NAMES[boss.pid] && PK.get(boss.pid)?.img ? ' ' + POKE_NAMES[boss.pid] : ''} ${fmt(Math.max(0, boss.hp))} / ${fmt(boss.maxHp)}`, x + w / 2, y + 14);
     ctx.textAlign = 'right'; ctx.font = '400 24px "Do Hyeon", sans-serif';
     const tl = bossTimeLeft(boss);
     ctx.fillStyle = tl < 8 ? '#ff7a5c' : '#efe6d2'; ctx.fillText(`${tl.toFixed(1)}초`, x + w - 8, y + 14);
