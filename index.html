@@ -904,19 +904,21 @@ function typedHit(m) {
   m.hp -= dmg; m.hitFlash = .15;
   S.floaters.push({ x: m.x + (Math.random() * 30 - 15), y: m.y - R[m.type] * 2.2, text: (crit ? '치명타! ' : '') + fmt(dmg), t: 0, crit });
   if (crit) { S.shakeUntil = S.t + .22; S.shakeMag = m.type === 'boss' ? 9 : 6; S.fx.push({ k: 'ring', x: m.x, y: m.y, t: 0, d: .3, r: R[m.type] * 2.6 }); play('crit'); }
-  if (m.hp <= 0) { kill(m); if (m.type !== 'boss') chainKill(m); }
+  if (m.type !== 'boss') splashHit(m, dmg);
+  if (m.hp <= 0) kill(m);
   else { if (!crit) play('hit'); m.text = m.type === 'boss' ? m.feed() : pickText(m.type, m); }
   clearInput(text);
 }
-/* 질주 모드: 한 마리를 더 처치 */
-function chainKill(from) {
+/* 질주 모드: 같은 데미지로 다른 몬스터 1마리를 함께 공격 (죽지 않으면 글자는 그대로) */
+function splashHit(from, dmg) {
   if (!overOn()) return;
   const others = S.monsters.filter(o => !o.dead && o !== from && o.type !== 'boss' && o.x < W);
   if (!others.length) return;
   const o = pick(others);
   S.fx.push({ k: 'arrow', x0: from.x, y0: from.y - R[from.type] * .4, x1: o.x, y1: o.y - R[o.type] * .4, t: 0, d: .2, c: '255,150,90', w: 4 });
-  S.floaters.push({ x: o.x, y: o.y - R[o.type] * 2.2, text: '연쇄!', t: 0, crit: true });
-  o.hp = 0; kill(o);
+  S.floaters.push({ x: o.x + (Math.random() * 30 - 15), y: o.y - R[o.type] * 2.2, text: '연쇄 ' + fmt(dmg), t: 0, crit: true });
+  o.hp -= dmg; o.hitFlash = .15;
+  if (o.hp <= 0) kill(o);
 }
 function addGold(g, x, y) {
   g *= honorGoldMult() * (rushOn() ? CONFIG.rushMult : 1);
@@ -1142,7 +1144,7 @@ function update(dt) {
   if (S.toasts.length) { S.toasts[0].t += dt; if (S.toasts[0].t > 3) S.toasts.shift(); }
   S.achT += dt; if (S.achT > 1) { S.achT = 0; checkAch(); checkRecord();
     const ov = CONFIG.overKill > 0 && atkPower() >= overNeed();
-    if (ov !== S.overWas) { if (ov && S.overWas !== undefined) { banner('질주 모드! 2마리씩 처치 · 소환 2배', '255,150,90'); play('rush'); } else if (!ov && S.overWas) notice('질주 모드 끝 · 여기부터 실력 승부', '255,150,90'); } S.overWas = ov; }
+    if (ov !== S.overWas) { if (ov && S.overWas !== undefined) { banner('질주 모드! 2마리 동시 공격 · 소환 2배', '255,150,90'); play('rush'); } else if (!ov && S.overWas) notice('질주 모드 끝 · 여기부터 실력 승부', '255,150,90'); } S.overWas = ov; }
   S.fx = S.fx.filter(f => f.t < f.d);
   for (const f of S.floaters) f.t += dt;
   S.floaters = S.floaters.filter(f => f.t < (f.big ? 1.6 : 1));
@@ -1451,7 +1453,7 @@ function drawHUD() {
   if (S.t < S.focusUntil) eff.push(`집중 ${Math.ceil(S.focusUntil - S.t)}초`);
   if (S.sureCrit > 0) eff.push(`필살 ${S.sureCrit}회`);
   if (rushOn()) eff.push(`골드 러시 ${Math.ceil(S.rushUntil - S.t)}초`);
-  if (overOn()) eff.push(`질주: 한 번에 2마리 · 소환 ×${CONFIG.overSpeed}`);
+  if (overOn()) eff.push(`질주: 2마리 동시 공격 · 소환 ×${CONFIG.overSpeed}`);
   const ey = boss ? 120 : 76;
   eff.forEach((t, i) => { ctx.font = '700 13px "Noto Sans KR", sans-serif'; const w = ctx.measureText(t).width + 18;
     ctx.fillStyle = 'rgba(14,11,19,.78)'; roundRect(WALL_X + 20, ey + i * 30, w, 24, 5); ctx.fill(); ctx.fillStyle = '#7cc6e8'; ctx.fillText(t, WALL_X + 29, ey + 13 + i * 30); });
@@ -1539,7 +1541,7 @@ function renderShop() {
   updateAutoUI();
   const owned = Object.keys(ITEMS).filter(n => prog.inv[n]).map(n => `${n} ×${prog.inv[n]}`);
   document.getElementById('ownedList').innerHTML = (owned.length ? '보유 소모품: ' + owned.join(' · ') : '보유 소모품 없음')
-    + `<br>질주 모드: 공격력이 이 스테이지를 처음 깼을 때의 ${CONFIG.overKill}배 이상이면 한 번에 2마리 처치·소환 ${CONFIG.overSpeed}배 `
+    + `<br>질주 모드: 공격력이 이 스테이지를 처음 깼을 때의 ${CONFIG.overKill}배 이상이면 같은 공격력으로 2마리 동시 공격·소환 ${CONFIG.overSpeed}배 `
     + (isFinite(overNeed()) ? `(지금 ${fmt(atkPower())} / 필요 ${fmt(overNeed())})` : '(역대 기록 아래 스테이지에서만)')
     + `<br>소모품은 보스 보상 상자에서 얻습니다 (일반 ${Math.round(CONFIG.chests[0].p * 100)}% · 희귀 ${Math.round(CONFIG.chests[1].p * 100)}% · 전설 ${Math.round(CONFIG.chests[2].p * 100)}%, 종류별 최대 ${CONFIG.itemMax}개).`;
 }
