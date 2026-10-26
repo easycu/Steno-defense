@@ -1265,15 +1265,25 @@ function wrapText(text, maxW) {
 }
 function drawLabel(m, typed) {
   const isBoss = m.type === 'boss';
-  ctx.font = `700 ${isBoss ? 24 : m.type === 'elite' ? 21 : 23}px "Noto Sans KR", sans-serif`;
+  ctx.font = `700 ${isBoss ? 26 : m.type === 'elite' ? 21 : 23}px "Noto Sans KR", sans-serif`;
   const text = m.text;
-  const lines = wrapText(text, 520);
-  const lh = isBoss ? 32 : 30;
-  const w = Math.max(...lines.map(l => ctx.measureText(l).width)) + 20;
-  const h = lines.length * lh + 8;
-  let bx = m.x - w / 2; bx = Math.max(WALL_X + 18, Math.min(W - w - 8, bx));
-  const top = m.drawTop !== undefined ? m.drawTop - (m.type === 'boss' && m.pid ? 26 : 0) : m.y - R[m.type] - 6;
-  const by = Math.max(70, top - 8 - h);
+  // 보스 문장: 체력바 바로 아래 넓은 고정 칸 (긴 문장도 가려지지 않게)
+  const PW = W - WALL_X - 80;
+  const lines = wrapText(text, isBoss ? PW - 28 : 520);
+  const lh = isBoss ? 36 : 30;
+  const w = isBoss ? PW : Math.max(...lines.map(l => ctx.measureText(l).width)) + 20;
+  const h = lines.length * lh + (isBoss ? 14 : 8);
+  let bx, by;
+  if (isBoss) {
+    bx = WALL_X + 40; by = 114;
+    S.bossPanelBottom = by + h;
+    const tx = Math.max(bx + 30, Math.min(bx + w - 30, m.x));   // 보스 쪽을 가리키는 꼬리
+    ctx.fillStyle = 'rgba(20,16,26,.88)'; ctx.beginPath(); ctx.moveTo(tx - 12, by + h - 1); ctx.lineTo(tx + 12, by + h - 1); ctx.lineTo(tx, by + h + 14); ctx.closePath(); ctx.fill();
+  } else {
+    bx = m.x - w / 2; bx = Math.max(WALL_X + 18, Math.min(W - w - 8, bx));
+    const top = m.drawTop !== undefined ? m.drawTop : m.y - R[m.type] - 6;
+    by = Math.max(70, top - 8 - h);
+  }
   const match = typed && key(text).startsWith(typed);
   ctx.fillStyle = match ? 'rgba(40,26,8,.92)' : 'rgba(20,16,26,.84)';
   roundRect(bx, by, w, h, 6); ctx.fill();
@@ -1283,7 +1293,7 @@ function drawLabel(m, typed) {
   let left = match ? typed.length : 0;
   ctx.textBaseline = 'middle';
   lines.forEach((ln, i) => {
-    let x = bx + 10; const y = by + 4 + lh * i + lh / 2;
+    let x = bx + (isBoss ? 14 : 10); const y = by + (isBoss ? 7 : 4) + lh * i + lh / 2;
     let n = 0;
     while (n < ln.length && left > 0) { if (key(ln[n])) left--; n++; }
     while (n < ln.length && match && left === 0 && n > 0 && /[.,?!]/.test(ln[n])) n++;
@@ -1454,7 +1464,7 @@ function drawHUD() {
   if (S.sureCrit > 0) eff.push(`필살 ${S.sureCrit}회`);
   if (rushOn()) eff.push(`골드 러시 ${Math.ceil(S.rushUntil - S.t)}초`);
   if (overOn()) eff.push(`질주: 2마리 동시 공격 · 소환 ×${CONFIG.overSpeed}`);
-  const ey = boss ? 120 : 76;
+  const ey = boss ? (S.bossPanelBottom || 120) + 22 : 76;
   eff.forEach((t, i) => { ctx.font = '700 13px "Noto Sans KR", sans-serif'; const w = ctx.measureText(t).width + 18;
     ctx.fillStyle = 'rgba(14,11,19,.78)'; roundRect(WALL_X + 20, ey + i * 30, w, 24, 5); ctx.fill(); ctx.fillStyle = '#7cc6e8'; ctx.fillText(t, WALL_X + 29, ey + 13 + i * 30); });
   if (S.t < S.freezeUntil) { ctx.fillStyle = 'rgba(124,198,232,.12)'; ctx.fillRect(WALL_X, 64, W, H); }
@@ -1482,7 +1492,7 @@ function drawHUD() {
     ctx.save(); ctx.globalAlpha = a;
     ctx.font = '400 22px "Do Hyeon", sans-serif'; const w1 = ctx.measureText(o.text).width;
     ctx.font = '700 12px "Noto Sans KR", sans-serif'; const w2 = ctx.measureText(o.sub).width;
-    const w = Math.max(w1, w2) + 32, x = W - w - 16 + slide, y = boss ? 118 : 76;
+    const w = Math.max(w1, w2) + 32, x = W - w - 16 + slide, y = boss ? (S.bossPanelBottom || 118) + 22 : 76;
     ctx.fillStyle = 'rgba(14,11,19,.9)'; roundRect(x, y, w, 58, 8); ctx.fill();
     ctx.strokeStyle = `rgb(${o.col})`; ctx.lineWidth = 2; roundRect(x, y, w, 58, 8); ctx.stroke();
     ctx.fillStyle = `rgb(${o.col})`; ctx.font = '400 22px "Do Hyeon", sans-serif'; ctx.fillText(o.text, x + 16, y + 20);
